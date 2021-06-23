@@ -37,23 +37,45 @@ class MyGallery extends React.Component {
   }
 }
 
+interface PhotoListing {
+  FileName: string;
+  Files: FileListing[];
+  UID: string;
+}
+interface FileListing {
+  Hash: string;
+  Name: string;
+  UID: string;
+}
+interface LoginResult {
+  id: string;
+  status: string;
+}
 (async () => {
+  const loginResult = (await ky
+    .post("/api/v1/session", {
+      json: {
+        username: "admin",
+        password: process.env.REACT_APP_PHOTOPRISM_PASSWORD,
+      },
+    })
+    .json()) as LoginResult;
   const api = ky.extend({
     hooks: {
       beforeRequest: [
         (request) => {
-          request.headers.set(
-            "X-Session-ID",
-            "69038c14dc3a082bc0543f02a7da8a92c32f7b2a423f314b"
-          );
+          request.headers.set("X-Session-ID", loginResult.id);
         },
       ],
     },
   });
-  const json = await api
+  const photos = (await api
     .get("/api/v1/photos?count=10&offset=0&merged=true")
-    .json();
-  console.log("photos", json);
+    .json()) as Array<PhotoListing>;
+  console.log(
+    "photo hashes",
+    ...photos.map((f) => f.Files.map((file) => file.Hash)).flat()
+  );
 })();
 
 function App() {
