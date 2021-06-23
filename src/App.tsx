@@ -2,6 +2,7 @@ import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import ImageGallery from "react-image-gallery";
+import ky from "ky";
 
 const images = [
   {
@@ -35,8 +36,32 @@ class MyGallery extends React.Component {
     return <ImageGallery items={images} />;
   }
 }
+
+(async () => {
+  const api = ky.extend({
+    hooks: {
+      beforeRequest: [
+        (request) => {
+          request.headers.set(
+            "X-Session-ID",
+            "69038c14dc3a082bc0543f02a7da8a92c32f7b2a423f314b"
+          );
+        },
+      ],
+    },
+  });
+  const json = await api
+    .get("http://localhost:2342/api/v1/photos?count=10&offset=0&merged=true")
+    .json();
+  console.log("photos", json);
+})();
+
 function App() {
-  return <MyGallery />;
+  return (
+    <div>
+      <MyGallery />
+    </div>
+  );
 }
 
 export default App;
