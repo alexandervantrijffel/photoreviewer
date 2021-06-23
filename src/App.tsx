@@ -51,7 +51,7 @@ class MyGallery extends React.Component {
     },
   });
   const json = await api
-    .get("http://localhost:2342/api/v1/photos?count=10&offset=0&merged=true")
+    .get("/api/v1/photos?count=10&offset=0&merged=true")
     .json();
   console.log("photos", json);
 })();
