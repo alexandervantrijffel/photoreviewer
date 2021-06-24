@@ -1,89 +1,123 @@
-import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
-import ImageGallery from "react-image-gallery";
-import ky from "ky";
-
-const images = [
-  {
-    original: "https://picsum.photos/id/1018/1000/600/",
-    thumbnail: "https://picsum.photos/id/1018/250/150/",
-  },
-  {
-    original: "https://picsum.photos/id/1015/1000/600/",
-    thumbnail: "https://picsum.photos/id/1015/250/150/",
-  },
-  {
-    original: "https://picsum.photos/id/1019/1000/600/",
-    thumbnail: "https://picsum.photos/id/1019/250/150/",
-  },
-  {
-    original:
-      "http://localhost:2342/api/v1/t/5b3c5b2232d546231205834496ae7f2a567037c2/45c097e5/tile_500",
-    thumbnail:
-      "http://localhost:2342/api/v1/t/5b3c5b2232d546231205834496ae7f2a567037c2/45c097e5/fit_2048",
-  },
-  {
-    original:
-      "http://localhost:2342/api/v1/t/a59b5326a1726eeefeedec8ad33c9cd4787de492/45c097e5/fit_2048",
-    thumbnail:
-      "http://localhost:2342/api/v1/t/a59b5326a1726eeefeedec8ad33c9cd4787de492/45c097e5/tile_500",
-  },
-];
-
-class MyGallery extends React.Component {
-  render() {
-    return <ImageGallery items={images} />;
-  }
-}
+import React, { useEffect, useState, useRef } from 'react'
+import './App.css'
+import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery'
+import ky from 'ky'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 interface PhotoListing {
-  FileName: string;
-  Files: FileListing[];
-  UID: string;
+  FileName: string
+  Files: FileListing[]
+  UID: string
 }
 interface FileListing {
-  Hash: string;
-  Name: string;
-  UID: string;
+  Hash: string
+  Name: string
+  UID: string
 }
 interface LoginResult {
-  id: string;
-  status: string;
+  id: string
+  status: string
 }
-(async () => {
+
+let api: typeof ky
+const archive = async (uid: string) => {
+  console.log(`Archiving photo ${uid}`)
+  const result = await api.post('/api/v1/batch/photos/archive', {
+    json: { photos: [uid] }
+  })
+  console.log('archive result', result)
+  //const result = await api.delete(`/api/v1/photos/${photos[0].UID}/${photos[0].Files[0].UID}`)
+}
+
+const listPhotos = async (offset: number): Promise<PhotoListing[]> => {
+  const photos = (await api.get(`/api/v1/photos?count=50&offset=${offset}&merged=true`).json()) as Array<PhotoListing>
+  if (photos?.length) {
+    return photos
+  }
+
+  console.log('no photos found')
+  return []
+}
+
+const initApi = async () => {
   const loginResult = (await ky
-    .post("/api/v1/session", {
+    .post('/api/v1/session', {
       json: {
-        username: "admin",
-        password: process.env.REACT_APP_PHOTOPRISM_PASSWORD,
-      },
+        username: 'admin',
+        password: process.env.REACT_APP_PHOTOPRISM_PASSWORD
+      }
     })
-    .json()) as LoginResult;
-  const api = ky.extend({
+    .json()) as LoginResult
+  api = ky.extend({
     hooks: {
       beforeRequest: [
         (request) => {
-          request.headers.set("X-Session-ID", loginResult.id);
-        },
-      ],
-    },
-  });
-  const photos = (await api
-    .get("/api/v1/photos?count=10&offset=0&merged=true")
-    .json()) as Array<PhotoListing>;
-  console.log(
-    "photo hashes",
-    ...photos.map((f) => f.Files.map((file) => file.Hash)).flat()
-  );
-})();
+          request.headers.set('X-Session-ID', loginResult.id)
+        }
+      ]
+    }
+  })
+}
+
+const fileUrl = (photo: PhotoListing, type: string): string => {
+  if (photo.Files.length === 0) {
+    console.error('photoprism photo has no files!')
+    return ''
+  }
+  if (photo.Files.length > 1) {
+    console.warn('photoprism photo has more than 1 file!', photo.Files)
+  }
+  return `http://localhost:2342/api/v1/t/${photo.Files[0].Hash}/d15ac654/${type}`
+}
+
+interface ImageGalleryItem extends ReactImageGalleryItem {
+  uid: string
+}
+
+const PhotoGallery = (): JSX.Element => {
+  const [images, setImages] = useState<ImageGalleryItem[]>([])
+  const [page, _setPage] = useState(0)
+  const imageGallery = useRef(null)
+  useHotkeys('del', () => {
+    if (imageGallery?.current) {
+      setImages((prevImages) => {
+        // @ts-ignore: Object is possibly 'null'.
+        const index = imageGallery.current!.getCurrentIndex()
+        archive(prevImages[index].uid)
+        return prevImages.filter((image) => image !== prevImages[index])
+      })
+    }
+  })
+  useHotkeys('space', () => {
+    if (imageGallery?.current) {
+      // @ts-ignore: Object is possibly 'null'.
+      imageGallery.current.togglePlay()
+    }
+  })
+  const onSlide = (index: number) => {
+    console.log(`sliding to`, { index, photo: images[index] })
+  }
+  useEffect(() => {
+    ;(async () => {
+      console.log('refreshing images')
+      if (!api) await initApi()
+      const newImages = (await listPhotos(page)).map((p) => ({
+        original: fileUrl(p, 'fit_2048'),
+        thumbnail: fileUrl(p, 'tile_500'),
+        uid: p.UID
+      })) as ImageGalleryItem[]
+      setImages(newImages)
+    })()
+  }, [page])
+  return <ImageGallery items={images} slideInterval={30000} autoPlay={false} ref={imageGallery} onSlide={onSlide} />
+}
 
 function App() {
   return (
     <div>
-      <MyGallery />
+      <PhotoGallery />
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
