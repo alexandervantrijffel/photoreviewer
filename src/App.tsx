@@ -34,7 +34,7 @@ const archive = async (uid: string) => {
 
 const unsortedPhotos = async (offset: number): Promise<PhotoListing[]> => {
   const photos = (await api
-    .get(`/api/v1/photos?count=50&offset=${offset}&merged=true&unsorted=true&public=true`)
+    .get(`/api/v1/photos?count=100&offset=${offset}&merged=true&unsorted=true&public=true`)
     .json()) as Array<PhotoListing>
   if (photos?.length) {
     return photos
@@ -168,7 +168,16 @@ const PhotoGallery = (): JSX.Element => {
       setImages(newImages)
     })()
   }, [page])
-  return <ImageGallery items={images} slideInterval={30000} autoPlay={false} ref={imageGallery} onSlide={onSlide} />
+  return (
+    <ImageGallery
+      items={images}
+      slideDuration={0}
+      slideInterval={30000}
+      autoPlay={true}
+      ref={imageGallery}
+      onSlide={onSlide}
+    />
+  )
 }
 
 function App() {
