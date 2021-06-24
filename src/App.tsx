@@ -32,9 +32,11 @@ const archive = async (uid: string) => {
   //const result = await api.delete(`/api/v1/photos/${photos[0].UID}/${photos[0].Files[0].UID}`)
 }
 
+const pageCount = 15
+
 const unsortedPhotos = async (offset: number): Promise<PhotoListing[]> => {
   const photos = (await api
-    .get(`/api/v1/photos?count=200&offset=${offset}&merged=true&unsorted=true&public=true`)
+    .get(`/api/v1/photos?count=${pageCount}&offset=${offset}&merged=true&unsorted=true`)
     .json()) as Array<PhotoListing>
   if (photos?.length) {
     return photos
@@ -96,20 +98,26 @@ const PhotoGallery = (): JSX.Element => {
   const theaterMode = true
   const [preferredIndex, setPreferredIndex] = useState(ignore)
   const [images, setImages] = useState<ImageGalleryItem[]>([])
-  const [page, _setPage] = useState(0)
+  const [page, setPage] = useState(0)
   const [paused, setPaused] = useState(!theaterMode)
   const imageGallery = useRef(null)
+
+  const currentImageGallery = (): ImageGallery | undefined => {
+    // @ts-ignore: Object is possibly 'null'.
+    return imageGallery.current
+  }
+  const currentIndex = (): number => {
+    return currentImageGallery()?.getCurrentIndex() ?? ignore
+  }
 
   const actOnSelectedImage = (action: (photo: ImageGalleryItem) => Promise<void>): void => {
     if (imageGallery?.current) {
       setImages((prevImages) => {
-        // @ts-ignore: Object is possibly 'null'.
-        const index = imageGallery.current.getCurrentIndex()
+        const index = currentIndex()
         ;(async () => {
           await action(prevImages[index])
         })()
         setPreferredIndex(index)
-        console.log('setting preferredIndex to ', index)
         return prevImages.filter((image) => image !== prevImages[index])
       })
     }
@@ -138,20 +146,11 @@ const PhotoGallery = (): JSX.Element => {
       imageGallery.current.togglePlay()
     }
   })
-  useEffect(() => {
-    if (preferredIndex !== ignore) {
-      if (imageGallery?.current) {
-        console.log('sliding programmatically to', preferredIndex)
-        // @ts-ignore: Object is possibly 'null'.
-        imageGallery.current.slideToIndex(preferredIndex < images.length ? preferredIndex : 0)
-      }
-      setPreferredIndex(ignore)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [images])
-
   const onSlide = (index: number) => {
-    console.log(`sliding to`, { index, photo: images[index] })
+    if (index + pageCount / 3 > images.length) {
+      console.log(`fetching next page`, { photoIndex: index, photo: images[index] })
+      setPage((prevPage) => prevPage + 1)
+    }
   }
   const onPause = () => {
     setPaused(true)
@@ -160,11 +159,20 @@ const PhotoGallery = (): JSX.Element => {
     setPaused(false)
   }
 
+  // apply preferredIndex when images are added or removed
+  useEffect(() => {
+    if (preferredIndex !== ignore) {
+      currentImageGallery()?.slideToIndex(preferredIndex < images.length ? preferredIndex : 0)
+      setPreferredIndex(ignore)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [images])
+
   useEffect(() => {
     ;(async () => {
-      console.log('refreshing images')
       if (!api) await initApi()
-      const newImages = (await unsortedPhotos(page)).map((p) => ({
+
+      const newImages = (await unsortedPhotos(page * pageCount)).map((p) => ({
         original: fileUrl(p, 'fit_2048'),
         originalTitle: p.FileName,
         originalAlt: p.FileName,
@@ -173,18 +181,25 @@ const PhotoGallery = (): JSX.Element => {
         thumbnailAlt: p.FileName,
         description: p.FileName,
         uid: p.UID
-      })) as ImageGalleryItem[]
-      setImages(newImages)
+      }))
+
+      setPreferredIndex(currentIndex())
+
+      setImages((prevImages) => {
+        return prevImages.concat(newImages)
+      })
     })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
 
   return (
     <ImageGallery
       items={images}
       slideDuration={0}
-      slideInterval={30000}
-      infinite={true}
+      slideInterval={1000}
       ref={imageGallery}
+      lazyLoad={true}
+      infinite={true}
       onSlide={onSlide}
       onPause={onPause}
       onPlay={onPlay}
