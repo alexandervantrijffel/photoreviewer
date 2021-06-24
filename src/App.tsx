@@ -98,13 +98,13 @@ const PhotoGallery = (): JSX.Element => {
   const [page, _setPage] = useState(0)
   const imageGallery = useRef(null)
 
-  const actOnSelectedImage = (action: (index: number, photo: ImageGalleryItem) => Promise<void>): void => {
+  const actOnSelectedImage = (action: (photo: ImageGalleryItem) => Promise<void>): void => {
     if (imageGallery?.current) {
       setImages((prevImages) => {
         // @ts-ignore: Object is possibly 'null'.
-        const index = imageGallery.current!.getCurrentIndex()
+        const index = imageGallery.current.getCurrentIndex()
         ;(async () => {
-          await action(index, prevImages[index])
+          await action(prevImages[index])
         })()
         setPreferredIndex(index)
         console.log('setting preferredIndex to ', index)
@@ -114,18 +114,18 @@ const PhotoGallery = (): JSX.Element => {
   }
 
   useHotkeys('del', () => {
-    actOnSelectedImage(async (index, photo) => {
+    actOnSelectedImage(async (photo) => {
       await archive(photo.uid)
     })
   })
   useHotkeys('p', () => {
-    actOnSelectedImage(async (index, photo) => {
+    actOnSelectedImage(async (photo) => {
       const handpicked = 'aqv7go439bxqhxcf'
       addPhotoToAlbum(photo.uid, handpicked)
     })
   })
   useHotkeys('n', () => {
-    actOnSelectedImage(async (index, photo) => {
+    actOnSelectedImage(async (photo) => {
       const nah = 'aqv7gny1rqphwbbs'
       addPhotoToAlbum(photo.uid, nah)
     })
@@ -145,6 +145,7 @@ const PhotoGallery = (): JSX.Element => {
       }
       setPreferredIndex(ignore)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images])
 
   const onSlide = (index: number) => {
