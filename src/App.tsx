@@ -32,7 +32,7 @@ const archive = async (uid: string) => {
   //const result = await api.delete(`/api/v1/photos/${photos[0].UID}/${photos[0].Files[0].UID}`)
 }
 
-const listPhotos = async (offset: number): Promise<PhotoListing[]> => {
+const unsortedPhotos = async (offset: number): Promise<PhotoListing[]> => {
   const photos = (await api
     .get(`/api/v1/photos?count=50&offset=${offset}&merged=true&unsorted=true&public=true`)
     .json()) as Array<PhotoListing>
@@ -155,9 +155,14 @@ const PhotoGallery = (): JSX.Element => {
     ;(async () => {
       console.log('refreshing images')
       if (!api) await initApi()
-      const newImages = (await listPhotos(page)).map((p) => ({
+      const newImages = (await unsortedPhotos(page)).map((p) => ({
         original: fileUrl(p, 'fit_2048'),
+        originalTitle: p.FileName,
+        originalAlt: p.FileName,
         thumbnail: fileUrl(p, 'tile_500'),
+        thumbnailTitle: p.FileName,
+        thumbnailAlt: p.FileName,
+        description: p.FileName,
         uid: p.UID
       })) as ImageGalleryItem[]
       setImages(newImages)
