@@ -89,5 +89,5 @@ export const fileUrl = (photo: PhotoListing, type: string): string => {
   if (photo.Files.length > 1) {
     console.warn('photoprism photo has more than 1 file!', photo.Files)
   }
-  return `http://localhost:2342/api/v1/t/${photo.Files[0].Hash}/d15ac654/${type}`
+  return `/api/v1/t/${photo.Files[0].Hash}/d15ac654/${type}`
 }
