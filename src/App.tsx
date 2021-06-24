@@ -25,18 +25,34 @@ const archive = async (uid: string) => {
   const result = await api.post('/api/v1/batch/photos/archive', {
     json: { photos: [uid] }
   })
-  console.log('archive result', result)
+  if (!result.ok) {
+    console.error('archive result', result)
+    throw new Error(`Archive failed ${JSON.stringify(result)}`)
+  }
   //const result = await api.delete(`/api/v1/photos/${photos[0].UID}/${photos[0].Files[0].UID}`)
 }
 
 const listPhotos = async (offset: number): Promise<PhotoListing[]> => {
-  const photos = (await api.get(`/api/v1/photos?count=50&offset=${offset}&merged=true`).json()) as Array<PhotoListing>
+  const photos = (await api
+    .get(`/api/v1/photos?count=50&offset=${offset}&merged=true&unsorted=true&public=true`)
+    .json()) as Array<PhotoListing>
   if (photos?.length) {
     return photos
   }
 
   console.log('no photos found')
   return []
+}
+
+const addPhotoToAlbum = async (uid: string, albumId: string) => {
+  console.log(`Adding photo to album ${uid}`)
+  const result = await api.post(`/api/v1/albums/${albumId}/photos`, {
+    json: { photos: [uid] }
+  })
+  if (!result.ok) {
+    console.error('Add result', result)
+    throw new Error(`Add to albul failed ${JSON.stringify(result)}`)
+  }
 }
 
 const initApi = async () => {
@@ -74,19 +90,45 @@ interface ImageGalleryItem extends ReactImageGalleryItem {
   uid: string
 }
 
+const ignore = -1
+
 const PhotoGallery = (): JSX.Element => {
+  const [preferredIndex, setPreferredIndex] = useState(ignore)
   const [images, setImages] = useState<ImageGalleryItem[]>([])
   const [page, _setPage] = useState(0)
   const imageGallery = useRef(null)
-  useHotkeys('del', () => {
+
+  const actOnSelectedImage = (action: (index: number, photo: ImageGalleryItem) => Promise<void>): void => {
     if (imageGallery?.current) {
       setImages((prevImages) => {
         // @ts-ignore: Object is possibly 'null'.
         const index = imageGallery.current!.getCurrentIndex()
-        archive(prevImages[index].uid)
+        ;(async () => {
+          await action(index, prevImages[index])
+        })()
+        setPreferredIndex(index)
+        console.log('setting preferredIndex to ', index)
         return prevImages.filter((image) => image !== prevImages[index])
       })
     }
+  }
+
+  useHotkeys('del', () => {
+    actOnSelectedImage(async (index, photo) => {
+      await archive(photo.uid)
+    })
+  })
+  useHotkeys('p', () => {
+    actOnSelectedImage(async (index, photo) => {
+      const handpicked = 'aqv7go439bxqhxcf'
+      addPhotoToAlbum(photo.uid, handpicked)
+    })
+  })
+  useHotkeys('n', () => {
+    actOnSelectedImage(async (index, photo) => {
+      const nah = 'aqv7gny1rqphwbbs'
+      addPhotoToAlbum(photo.uid, nah)
+    })
   })
   useHotkeys('space', () => {
     if (imageGallery?.current) {
@@ -94,6 +136,17 @@ const PhotoGallery = (): JSX.Element => {
       imageGallery.current.togglePlay()
     }
   })
+  useEffect(() => {
+    if (preferredIndex !== ignore) {
+      if (imageGallery?.current) {
+        console.log('sliding programmatically to', preferredIndex)
+        // @ts-ignore: Object is possibly 'null'.
+        imageGallery.current.slideToIndex(preferredIndex < images.length ? preferredIndex : 0)
+      }
+      setPreferredIndex(ignore)
+    }
+  }, [images])
+
   const onSlide = (index: number) => {
     console.log(`sliding to`, { index, photo: images[index] })
   }
