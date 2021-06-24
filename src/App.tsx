@@ -34,7 +34,7 @@ const archive = async (uid: string) => {
 
 const unsortedPhotos = async (offset: number): Promise<PhotoListing[]> => {
   const photos = (await api
-    .get(`/api/v1/photos?count=100&offset=${offset}&merged=true&unsorted=true&public=true`)
+    .get(`/api/v1/photos?count=200&offset=${offset}&merged=true&unsorted=true&public=true`)
     .json()) as Array<PhotoListing>
   if (photos?.length) {
     return photos
@@ -93,9 +93,11 @@ interface ImageGalleryItem extends ReactImageGalleryItem {
 const ignore = -1
 
 const PhotoGallery = (): JSX.Element => {
+  const theaterMode = true
   const [preferredIndex, setPreferredIndex] = useState(ignore)
   const [images, setImages] = useState<ImageGalleryItem[]>([])
   const [page, _setPage] = useState(0)
+  const [paused, setPaused] = useState(!theaterMode)
   const imageGallery = useRef(null)
 
   const actOnSelectedImage = (action: (photo: ImageGalleryItem) => Promise<void>): void => {
@@ -151,6 +153,13 @@ const PhotoGallery = (): JSX.Element => {
   const onSlide = (index: number) => {
     console.log(`sliding to`, { index, photo: images[index] })
   }
+  const onPause = () => {
+    setPaused(true)
+  }
+  const onPlay = () => {
+    setPaused(false)
+  }
+
   useEffect(() => {
     ;(async () => {
       console.log('refreshing images')
@@ -168,14 +177,21 @@ const PhotoGallery = (): JSX.Element => {
       setImages(newImages)
     })()
   }, [page])
+
   return (
     <ImageGallery
       items={images}
       slideDuration={0}
       slideInterval={30000}
-      autoPlay={true}
+      infinite={true}
       ref={imageGallery}
       onSlide={onSlide}
+      onPause={onPause}
+      onPlay={onPlay}
+      autoPlay={theaterMode}
+      showNav={paused}
+      showThumbnails={paused}
+      showFullscreenButton={paused}
     />
   )
 }
