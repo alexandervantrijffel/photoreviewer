@@ -7,6 +7,31 @@ interface ImageGalleryItem extends ReactImageGalleryItem {
   uid: string
 }
 
+enum ActionType {
+  Archived,
+  AddedToAlbum
+}
+
+interface UndoItem {
+  type: ActionType
+  Album?: string
+}
+
+const initializeUndo = () => {
+  const history: UndoItem[] = []
+  const undoLast = () => {
+    const _last = history.pop()
+  }
+  const push = (item: UndoItem) => {
+    history.push(item)
+  }
+
+  return { undoLast, push }
+}
+
+const undo = initializeUndo()
+undo.undoLast()
+
 const PhotoGallery = (): JSX.Element => {
   const ignore = -1
   const theaterMode = true
@@ -41,18 +66,21 @@ const PhotoGallery = (): JSX.Element => {
   useHotkeys('del', () => {
     actOnSelectedImage(async (photo) => {
       await archive(photo.uid)
+      undo.push({ type: ActionType.Archived })
     })
   })
   useHotkeys('p', () => {
     actOnSelectedImage(async (photo) => {
       const handpicked = 'aqv7go439bxqhxcf'
       addPhotoToAlbum(photo.uid, handpicked)
+      undo.push({ type: ActionType.AddedToAlbum, Album: handpicked })
     })
   })
   useHotkeys('n', () => {
     actOnSelectedImage(async (photo) => {
       const nah = 'aqv7gny1rqphwbbs'
       addPhotoToAlbum(photo.uid, nah)
+      undo.push({ type: ActionType.AddedToAlbum, Album: nah })
     })
   })
   useHotkeys('space', () => {
