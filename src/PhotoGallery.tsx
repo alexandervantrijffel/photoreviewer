@@ -1,7 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react'
 import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { archive, addPhotoToAlbum, unsortedPhotos, pageCount, fileUrl } from './photoprismClient'
+import {
+  archive,
+  addPhotoToAlbum,
+  unsortedPhotos,
+  pageCount,
+  fileUrl,
+  restore,
+  deletePhotoFromAlbum
+} from './photoprismClient'
 
 interface ImageGalleryItem extends ReactImageGalleryItem {
   uid: string
@@ -14,27 +22,44 @@ enum ActionType {
 
 interface UndoItem {
   type: ActionType
-  Album?: string
+  album?: string
+  photo: ImageGalleryItem
 }
 
 const initializeUndo = () => {
   const history: UndoItem[] = []
-  const undoLast = () => {
-    const _last = history.pop()
+  const undoOne = (): UndoItem | undefined => {
+    const last = history.pop()
+    if (!last) {
+      return
+    }
+    if (last.type === ActionType.Archived) {
+      restore(last.photo.uid)
+      return last
+    }
+    if (!last.album) {
+      console.error('Undo photo has no album', last)
+      return
+    }
+    deletePhotoFromAlbum(last.photo.uid, last.album)
+    return last
   }
-  const push = (item: UndoItem) => {
+  const pushPhoto = (item: UndoItem) => {
+    if (history.length && history[history.length - 1].photo.uid === item.photo.uid) {
+      console.error('refusing to add the same photo twice', item)
+      return
+    }
     history.push(item)
   }
 
-  return { undoLast, push }
+  return { one: undoOne, push: pushPhoto }
 }
 
 const undo = initializeUndo()
-undo.undoLast()
 
 const PhotoGallery = (): JSX.Element => {
   const ignore = -1
-  const theaterMode = true
+  const theaterMode = false
 
   const [preferredIndex, setPreferredIndex] = useState(ignore)
   const [images, setImages] = useState<ImageGalleryItem[]>([])
@@ -52,36 +77,42 @@ const PhotoGallery = (): JSX.Element => {
 
   const actOnSelectedImage = (action: (photo: ImageGalleryItem) => Promise<void>): void => {
     if (imageGallery?.current) {
+      const index = currentIndex()
       setImages((prevImages) => {
-        const index = currentIndex()
         ;(async () => {
           await action(prevImages[index])
         })()
-        setPreferredIndex(index)
         return prevImages.filter((image) => image !== prevImages[index])
       })
+      setPreferredIndex(index)
     }
   }
 
   useHotkeys('del', () => {
     actOnSelectedImage(async (photo) => {
       await archive(photo.uid)
-      undo.push({ type: ActionType.Archived })
+      undo.push({ type: ActionType.Archived, photo: photo })
     })
   })
   useHotkeys('p', () => {
     actOnSelectedImage(async (photo) => {
       const handpicked = 'aqv7go439bxqhxcf'
       addPhotoToAlbum(photo.uid, handpicked)
-      undo.push({ type: ActionType.AddedToAlbum, Album: handpicked })
+      undo.push({ type: ActionType.AddedToAlbum, album: handpicked, photo })
     })
   })
   useHotkeys('n', () => {
     actOnSelectedImage(async (photo) => {
       const nah = 'aqv7gny1rqphwbbs'
       addPhotoToAlbum(photo.uid, nah)
-      undo.push({ type: ActionType.AddedToAlbum, Album: nah })
+      undo.push({ type: ActionType.AddedToAlbum, album: nah, photo })
     })
+  })
+  useHotkeys('u', () => {
+    const photo = undo.one()
+    if (photo) {
+      setImages((prevImages) => [photo.photo, ...prevImages])
+    }
   })
   useHotkeys('space', () => {
     if (imageGallery?.current) {
@@ -92,7 +123,7 @@ const PhotoGallery = (): JSX.Element => {
   // apply preferredIndex when images are added or removed
   useEffect(() => {
     if (preferredIndex !== ignore) {
-      currentImageGallery()?.slideToIndex(preferredIndex < images.length ? preferredIndex : 0)
+      currentImageGallery()?.slideToIndex(preferredIndex < images.length ? preferredIndex : images.length - 1)
       setPreferredIndex(ignore)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

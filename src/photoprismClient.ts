@@ -59,13 +59,24 @@ export const unsortedPhotos = async (offset: number): Promise<PhotoListing[]> =>
 }
 
 export const addPhotoToAlbum = async (uid: string, albumId: string) => {
-  console.log(`Adding photo to album ${uid}`)
+  console.log(`Adding photo ${uid} to album ${albumId}`)
   const result = await api.post(`/api/v1/albums/${albumId}/photos`, {
     json: { photos: [uid] }
   })
   if (!result.ok) {
     console.error('Add result', result)
-    throw new Error(`Add to albul failed ${JSON.stringify(result)}`)
+    throw new Error(`Add to album failed ${JSON.stringify(result)}`)
+  }
+}
+
+export const deletePhotoFromAlbum = async (uid: string, albumId: string) => {
+  console.log(`Deleting photo ${uid} from album ${albumId}`)
+  const result = await api.delete(`/api/v1/albums/${albumId}/photos`, {
+    json: { photos: [uid] }
+  })
+  if (!result.ok) {
+    console.error('Delete result', result)
+    throw new Error(`Delete from album failed ${JSON.stringify(result)}`)
   }
 }
 
@@ -77,6 +88,17 @@ export const archive = async (uid: string) => {
   if (!result.ok) {
     console.error('archive result', result)
     throw new Error(`Archive failed ${JSON.stringify(result)}`)
+  }
+  //const result = await api.delete(`/api/v1/photos/${photos[0].UID}/${photos[0].Files[0].UID}`)
+}
+export const restore = async (uid: string) => {
+  console.log(`Restoring photo ${uid}`)
+  const result = await api.post('/api/v1/batch/photos/restore', {
+    json: { photos: [uid] }
+  })
+  if (!result.ok) {
+    console.error('Restore result', result)
+    throw new Error(`Restore failed ${JSON.stringify(result)}`)
   }
   //const result = await api.delete(`/api/v1/photos/${photos[0].UID}/${photos[0].Files[0].UID}`)
 }
