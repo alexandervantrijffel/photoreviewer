@@ -94,11 +94,16 @@ const PhotoGallery = (): JSX.Element => {
       undo.push({ type: ActionType.Archived, photo: photo })
     })
   })
+
+  const pick = (uid: string) => {
+    const handpicked = 'aqv7go439bxqhxcf'
+    addPhotoToAlbum(uid, handpicked)
+    return handpicked
+  }
   useHotkeys('p', () => {
     actOnSelectedImage(async (photo) => {
-      const handpicked = 'aqv7go439bxqhxcf'
-      addPhotoToAlbum(photo.uid, handpicked)
-      undo.push({ type: ActionType.AddedToAlbum, album: handpicked, photo })
+      const album = pick(photo.uid)
+      undo.push({ type: ActionType.AddedToAlbum, album: album, photo })
     })
   })
   useHotkeys('n', () => {
@@ -123,7 +128,9 @@ const PhotoGallery = (): JSX.Element => {
   // apply preferredIndex when images are added or removed
   useEffect(() => {
     if (preferredIndex !== ignore) {
-      currentImageGallery()?.slideToIndex(preferredIndex < images.length ? preferredIndex : images.length - 1)
+      const index = preferredIndex < images.length ? preferredIndex : images.length - 1
+      console.log(`setting index to ${index}`)
+      currentImageGallery()?.slideToIndex(index)
       setPreferredIndex(ignore)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -131,27 +138,34 @@ const PhotoGallery = (): JSX.Element => {
 
   useEffect(() => {
     ;(async () => {
-      const newImages = (await unsortedPhotos(page * pageCount)).map((p) => ({
-        original: fileUrl(p, 'fit_2048'),
-        originalTitle: p.FileName,
-        thumbnail: fileUrl(p, 'tile_500'),
-        thumbnailTitle: p.FileName,
-        description: p.FileName,
-        uid: p.UID
-      }))
+      const results = await unsortedPhotos(images.length)
+
+      for (const video of results.videos) {
+        console.log(`auto picking VIDEO ${video.FileName}`)
+        pick(video.UID)
+      }
 
       setPreferredIndex(currentIndex())
 
       setImages((prevImages) => {
-        return prevImages.concat(newImages)
+        const newPhotos = results.photos.map((p) => ({
+          original: fileUrl(p, 'fit_2048'),
+          originalTitle: p.FileName,
+          thumbnail: fileUrl(p, 'tile_500'),
+          thumbnailTitle: p.FileName,
+          description: p.FileName,
+          uid: p.UID
+        }))
+        return prevImages.concat(newPhotos)
       })
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
 
   const onSlide = (index: number) => {
-    if (index + pageCount / 3 >= images.length) {
-      console.log(`fetching next page`, { photoIndex: index, photo: images[index] })
+    // index we get here is often undefined?! so we cannot rely on it
+    if (images.length < pageCount || (index && index + pageCount / 2 > images.length)) {
+      console.log(`fetching next page`, { photoIndex: index })
       setPage((prevPage) => prevPage + 1)
     }
   }

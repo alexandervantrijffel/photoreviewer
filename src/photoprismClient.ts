@@ -9,6 +9,7 @@ interface FileListing {
   Hash: string
   Name: string
   UID: string
+  Video: boolean
 }
 interface LoginResult {
   id: string
@@ -45,17 +46,25 @@ const initApi = (() => {
   }
 })()
 
-export const unsortedPhotos = async (offset: number): Promise<PhotoListing[]> => {
+export const unsortedPhotos = async (offset: number) => {
   await initApi()
   const photos = (await api
     .get(`/api/v1/photos?count=${pageCount}&offset=${offset}&merged=true&unsorted=true`)
     .json()) as Array<PhotoListing>
-  if (photos?.length) {
-    return photos
+  const empty = { videos: [] as PhotoListing[], photos: [] as PhotoListing[] }
+  if (!photos?.length) {
+    console.log('no photos found')
+    return empty
   }
-
-  console.log('no photos found')
-  return []
+  return photos.reduce((acc, listing) => {
+    const video = listing.Files.some((file) => file.Video)
+    if (video) {
+      acc.videos.push(listing)
+    } else {
+      acc.photos.push(listing)
+    }
+    return acc
+  }, empty)
 }
 
 export const addPhotoToAlbum = async (uid: string, albumId: string) => {
