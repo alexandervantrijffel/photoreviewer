@@ -78,13 +78,13 @@ const PhotoGallery = (): JSX.Element => {
   const actOnSelectedImage = (action: (photo: ImageGalleryItem) => Promise<void>): void => {
     if (imageGallery?.current) {
       const index = currentIndex()
+      setPreferredIndex(index)
       setImages((prevImages) => {
         ;(async () => {
           await action(prevImages[index])
         })()
         return prevImages.filter((image) => image !== prevImages[index])
       })
-      setPreferredIndex(index)
     }
   }
 
