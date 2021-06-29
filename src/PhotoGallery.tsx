@@ -88,6 +88,20 @@ const PhotoGallery = (): JSX.Element => {
     }
   }
 
+  const onSlide = (index: number) => {
+    // index we get here is often undefined?! so we cannot rely on it
+    if (images.length < pageCount || (index && index + pageCount / 2 > images.length)) {
+      console.log(`fetching next page`, { photoIndex: index })
+      setPage((prevPage) => prevPage + 1)
+    }
+  }
+  const onPause = () => {
+    setPaused(true)
+  }
+  const onPlay = () => {
+    setPaused(false)
+  }
+
   useHotkeys('del', () => {
     actOnSelectedImage(async (photo) => {
       await archive(photo.uid)
@@ -125,6 +139,7 @@ const PhotoGallery = (): JSX.Element => {
       imageGallery.current.togglePlay()
     }
   })
+
   // apply preferredIndex when images are added or removed
   useEffect(() => {
     if (preferredIndex !== ignore) {
@@ -132,6 +147,7 @@ const PhotoGallery = (): JSX.Element => {
       console.log(`setting index to ${index}`)
       currentImageGallery()?.slideToIndex(index)
       setPreferredIndex(ignore)
+      onSlide(index)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images])
@@ -161,20 +177,6 @@ const PhotoGallery = (): JSX.Element => {
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
-
-  const onSlide = (index: number) => {
-    // index we get here is often undefined?! so we cannot rely on it
-    if (images.length < pageCount || (index && index + pageCount / 2 > images.length)) {
-      console.log(`fetching next page`, { photoIndex: index })
-      setPage((prevPage) => prevPage + 1)
-    }
-  }
-  const onPause = () => {
-    setPaused(true)
-  }
-  const onPlay = () => {
-    setPaused(false)
-  }
 
   return (
     <ImageGallery
