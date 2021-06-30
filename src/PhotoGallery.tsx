@@ -102,7 +102,7 @@ const PhotoGallery = (): JSX.Element => {
     setPaused(false)
   }
 
-  useHotkeys('del', () => {
+  useHotkeys('del, backspace', () => {
     actOnSelectedImage(async (photo) => {
       await archive(photo.uid)
       undo.push({ type: ActionType.Archived, photo: photo })
