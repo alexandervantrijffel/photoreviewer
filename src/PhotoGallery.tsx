@@ -62,7 +62,7 @@ const PhotoGallery = (): JSX.Element => {
   const theaterMode = false
 
   const [preferredIndex, setPreferredIndex] = useState(ignore)
-  const [images, setImages] = useState<ImageGalleryItem[]>([])
+  const [images, setImages] = useState<Readonly<ImageGalleryItem[]>>([])
   const [page, setPage] = useState(0)
   const [paused, setPaused] = useState(!theaterMode)
   const imageGallery = useRef(null)
