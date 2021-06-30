@@ -5,7 +5,16 @@
   "labels": ["ready-to-merge"],
   "updateLockFiles": true,
   "rangeStrategy":"bump",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true
+  }
   "packageRules": [
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchPackagePatterns": ["lint", "prettier"],
+      "automerge": true
+    },
     {
       "packagePatterns": ["jest"],
       "groupName": "jest packages",
