@@ -8,11 +8,10 @@
   "lockFileMaintenance": {
     "enabled": true,
     "automerge": true
-  }
+  },
   "packageRules": [
     {
       "matchDepTypes": ["devDependencies"],
-      "matchPackagePatterns": ["lint", "prettier"],
       "automerge": true
     },
     {
