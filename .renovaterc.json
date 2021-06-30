@@ -3,6 +3,8 @@
   "ignoreDeps": ["renovate"],
   "prCreation": "immediate",
   "labels": ["ready-to-merge"],
+  "updateLockFiles": true,
+  "rangeStrategy":"bump",
   "packageRules": [
     {
       "packagePatterns": ["jest"],
