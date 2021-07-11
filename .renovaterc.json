@@ -1,31 +1,4 @@
 {
   "extends": ["github>alexandervantrijffel/presets"],
-  "ignoreDeps": ["renovate"],
-  "prCreation": "immediate",
-  "labels": ["ready-to-merge"],
-  "updateLockFiles": true,
-  "rangeStrategy":"bump",
-  "lockFileMaintenance": {
-    "enabled": true,
-    "automerge": true
-  },
-  "packageRules": [
-    {
-      "matchDepTypes": ["devDependencies"],
-      "automerge": true
-    },
-    {
-      "packagePatterns": ["jest"],
-      "groupName": "jest packages",
-      "dependencyDashboardAutoclose": "true"
-    },
-    {
-      "packagePatterns": ["^apollo"],
-      "groupName": "apollo packages",
-      "dependencyDashboardAutoclose": "true"
-    },
-    {
-      "updateTypes": ["minor", "major"]
-    }
-  ]
+  "ignoreDeps": ["renovate"]
 }
