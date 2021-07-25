@@ -16,7 +16,7 @@ interface LoginResult {
   status: string
 }
 
-export const pageCount = 25
+export const pageCount = 20
 let api: typeof ky
 
 const initApi = (() => {

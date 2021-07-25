@@ -38,7 +38,7 @@ const initializeUndo = () => {
       return last
     }
     if (!last.album) {
-      console.error('Undo photo has no album', last)
+      console.error('Undo photo has no album, cannot remove photo from album', last)
       return
     }
     deletePhotoFromAlbum(last.photo.uid, last.album)
@@ -65,6 +65,7 @@ const PhotoGallery = (): JSX.Element => {
   const [images, setImages] = useState<Readonly<ImageGalleryItem[]>>([])
   const [page, setPage] = useState(0)
   const [paused, setPaused] = useState(!theaterMode)
+  const [processedPhotosCount, setProcessedPhotosCount] = useState(0)
   const imageGallery = useRef(null)
 
   const currentImageGallery = (): ImageGallery | undefined => {
@@ -106,11 +107,12 @@ const PhotoGallery = (): JSX.Element => {
     actOnSelectedImage(async (photo) => {
       await archive(photo.uid)
       undo.push({ type: ActionType.Archived, photo: photo })
+      setProcessedPhotosCount((prev) => prev++)
     })
   })
 
   const pick = (uid: string) => {
-    const handpicked = 'aqv7go439bxqhxcf'
+    const handpicked = 'aqwsqs92olyk29f1'
     addPhotoToAlbum(uid, handpicked)
     return handpicked
   }
@@ -118,19 +120,22 @@ const PhotoGallery = (): JSX.Element => {
     actOnSelectedImage(async (photo) => {
       const album = pick(photo.uid)
       undo.push({ type: ActionType.AddedToAlbum, album: album, photo })
+      setProcessedPhotosCount((prev) => prev++)
     })
   })
   useHotkeys('n', () => {
     actOnSelectedImage(async (photo) => {
-      const nah = 'aqv7gny1rqphwbbs'
+      const nah = 'aqwsqu7tzrdu7kxn'
       addPhotoToAlbum(photo.uid, nah)
       undo.push({ type: ActionType.AddedToAlbum, album: nah, photo })
+      setProcessedPhotosCount((prev) => prev++)
     })
   })
   useHotkeys('u', () => {
     const photo = undo.one()
     if (photo) {
       setImages((prevImages) => [photo.photo, ...prevImages])
+      setProcessedPhotosCount((prev) => prev--)
     }
   })
   useHotkeys('space', () => {
@@ -154,11 +159,13 @@ const PhotoGallery = (): JSX.Element => {
 
   useEffect(() => {
     ;(async () => {
-      const results = await unsortedPhotos(images.length)
+      const results = await unsortedPhotos(!images.length ? 0 : images.length + processedPhotosCount)
 
-      for (const video of results.videos) {
-        console.log(`auto picking VIDEO ${video.FileName}`)
-        pick(video.UID)
+      if (results.videos?.length > 0) {
+        for (const video of results.videos) {
+          pick(video.UID)
+        }
+        setProcessedPhotosCount((prev) => prev + results.videos.length)
       }
 
       setPreferredIndex(currentIndex())
