@@ -77,16 +77,17 @@ const PhotoGallery = (): JSX.Element => {
   }
 
   const actOnSelectedImage = (action: (photo: ImageGalleryItem) => Promise<void>): void => {
-    if (imageGallery?.current) {
-      const index = currentIndex()
-      setPreferredIndex(index)
-      setImages((prevImages) => {
-        ;(async () => {
-          await action(prevImages[index])
-        })()
-        return prevImages.filter((image) => image !== prevImages[index])
-      })
+    const index = currentIndex()
+    if (index === ignore) {
+      console.error('Cannot actOnSelectedImage as no image is selected')
     }
+    setPreferredIndex(index)
+    setImages((prevImages) => {
+      ;(async () => {
+        await action(prevImages[index])
+      })()
+      return prevImages.filter((image) => image !== prevImages[index])
+    })
   }
 
   const onSlide = (index: number) => {
@@ -107,8 +108,8 @@ const PhotoGallery = (): JSX.Element => {
     actOnSelectedImage(async (photo) => {
       await archive(photo.uid)
       undo.push({ type: ActionType.Archived, photo: photo })
-      setProcessedPhotosCount((prev) => prev++)
     })
+    setProcessedPhotosCount((prev) => prev + 1)
   })
 
   const pick = (uid: string) => {
@@ -117,31 +118,44 @@ const PhotoGallery = (): JSX.Element => {
     return handpicked
   }
   useHotkeys('p', () => {
+    setProcessedPhotosCount((prev) => prev + 1)
     actOnSelectedImage(async (photo) => {
       const album = pick(photo.uid)
       undo.push({ type: ActionType.AddedToAlbum, album: album, photo })
-      setProcessedPhotosCount((prev) => prev++)
     })
   })
   useHotkeys('n', () => {
+    setProcessedPhotosCount((prev) => prev + 1)
     actOnSelectedImage(async (photo) => {
       const nah = 'aqwsqu7tzrdu7kxn'
       addPhotoToAlbum(photo.uid, nah)
       undo.push({ type: ActionType.AddedToAlbum, album: nah, photo })
-      setProcessedPhotosCount((prev) => prev++)
     })
   })
   useHotkeys('u', () => {
+    setProcessedPhotosCount((prev) => prev - 1)
     const photo = undo.one()
     if (photo) {
       setImages((prevImages) => [photo.photo, ...prevImages])
-      setProcessedPhotosCount((prev) => prev--)
     }
   })
   useHotkeys('space', () => {
     if (imageGallery?.current) {
       // @ts-ignore: Object is possibly 'null'.
       imageGallery.current.togglePlay()
+    }
+  })
+
+  useHotkeys('j', () => {
+    if (imageGallery?.current) {
+      // @ts-ignore: Object is possibly 'null'.
+      imageGallery.current.slideLeft()
+    }
+  })
+  useHotkeys(';', () => {
+    if (imageGallery?.current) {
+      // @ts-ignore: Object is possibly 'null'.
+      imageGallery.current.slideRight()
     }
   })
 
