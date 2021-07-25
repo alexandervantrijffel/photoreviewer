@@ -41,5 +41,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://powerhouse.local:2342"
+  "proxy": "http://0.0.0.0:2342"
 }
