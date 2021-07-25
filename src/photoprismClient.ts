@@ -67,23 +67,31 @@ export const unsortedPhotos = async (offset: number) => {
   }, empty)
 }
 
+interface PhotoResponse {
+  code: number
+}
+
 export const addPhotoToAlbum = async (uid: string, albumId: string) => {
   console.log(`Adding photo ${uid} to album ${albumId}`)
-  const result = await api.post(`/api/v1/albums/${albumId}/photos`, {
-    json: { photos: [uid] }
-  })
-  if (!result.ok) {
+  const result = await api
+    .post(`/api/v1/albums/${albumId}/photos`, {
+      json: { photos: [uid] }
+    })
+    .json<PhotoResponse>()
+  if (result.code !== 200) {
     console.error('Add result', result)
-    throw new Error(`Add to album failed ${JSON.stringify(result)}`)
+    throw new Error(`Add to album failed ${result.code} ${JSON.stringify(result)}`)
   }
 }
 
 export const deletePhotoFromAlbum = async (uid: string, albumId: string) => {
   console.log(`Deleting photo ${uid} from album ${albumId}`)
-  const result = await api.delete(`/api/v1/albums/${albumId}/photos`, {
-    json: { photos: [uid] }
-  })
-  if (!result.ok) {
+  const result = await api
+    .delete(`/api/v1/albums/${albumId}/photos`, {
+      json: { photos: [uid] }
+    })
+    .json<PhotoResponse>()
+  if (result.code !== 200) {
     console.error('Delete result', result)
     throw new Error(`Delete from album failed ${JSON.stringify(result)}`)
   }
@@ -91,10 +99,12 @@ export const deletePhotoFromAlbum = async (uid: string, albumId: string) => {
 
 export const archive = async (uid: string) => {
   console.log(`Archiving photo ${uid}`)
-  const result = await api.post('/api/v1/batch/photos/archive', {
-    json: { photos: [uid] }
-  })
-  if (!result.ok) {
+  const result = await api
+    .post('/api/v1/batch/photos/archive', {
+      json: { photos: [uid] }
+    })
+    .json<PhotoResponse>()
+  if (result.code !== 200) {
     console.error('archive result', result)
     throw new Error(`Archive failed ${JSON.stringify(result)}`)
   }
@@ -102,10 +112,12 @@ export const archive = async (uid: string) => {
 }
 export const restore = async (uid: string) => {
   console.log(`Restoring photo ${uid}`)
-  const result = await api.post('/api/v1/batch/photos/restore', {
-    json: { photos: [uid] }
-  })
-  if (!result.ok) {
+  const result = await api
+    .post('/api/v1/batch/photos/restore', {
+      json: { photos: [uid] }
+    })
+    .json<PhotoResponse>()
+  if (result.code !== 200) {
     console.error('Restore result', result)
     throw new Error(`Restore failed ${JSON.stringify(result)}`)
   }
