@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "es2016",
     "sourceMap": true,
     "declaration": true,
     "allowJs": false,
@@ -25,15 +24,30 @@
     "skipDefaultLibCheck": true,
     "stripInternal": true,
     "suppressImplicitAnyIndexErrors": true,
-    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "typeRoots": ["./src/@types", "./node_modules/@types"]
+    "typeRoots": [
+      "./src/@types",
+      "./node_modules/@types"
+    ],
+    "module": "esnext",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ]
   },
-  "lib": ["es2015", "ESNext.AsyncIterable"],
-  "include": ["src/**/*"],
-  "exclude": ["types", "node_modules", "src/**/*.test*.ts", "src/**/*.spec.ts"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "**/types",
+    "**/@types",
+    "node_modules",
+    "src/**/*.test*.ts",
+    "src/**/*.spec.ts"
+  ]
 }
