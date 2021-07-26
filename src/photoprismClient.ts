@@ -16,17 +16,58 @@ interface FileListing {
 export const pageCount = 20
 let api: typeof ky
 
-interface AlbumQueryResponse {
+export interface AlbumQueryResponse {
   UID: string
   Slug: string
 }
-export const queryAlbums = async (): Promise<AlbumQueryResponse[]> => {
-  const result = await api.get('/api/v2/albums?count=24&offset=0&q=&category=&type=album').json<AlbumQueryResponse[]>()
-  // if (result.code !== 200) {
-  //   console.error('Album query result', result)
-  //   throw new Error(`Query albums failed ${JSON.stringify(result)}`)
-  // }
+const queryAlbums = async () => {
+  const result = (await api
+    .get('/api/v1/albums?count=48&offset=0&q=&category=&type=album')
+    .json()) as AlbumQueryResponse[]
   return result
+}
+
+export type fileUrl = (photo: PhotoListing, type: string) => string
+
+export const getFileUrl =
+  (loginResult: LoginResult) =>
+  (photo: PhotoListing, type: string): string => {
+    if (!photo) {
+      console.log('nophoto!')
+      return 'nophoto'
+    }
+    if (photo.Files.length === 0) {
+      console.error('photoprism photo has no files!')
+      return ''
+    }
+    if (photo.Files.length > 1) {
+      console.warn('photoprism photo has more than 1 file!', photo.Files)
+    }
+
+    return `${envString('REACT_APP_PHOTOPRISM_DOMAIN', '')}/api/v1/t/${photo.Files[0].Hash}/${
+      loginResult.config.previewToken
+    }/${type}`
+  }
+
+export const initApi = async () => {
+  const loginResult = (await ky
+    .post('/api/v1/session', {
+      json: {
+        username: 'admin',
+        password: process.env.REACT_APP_PHOTOPRISM_PASSWORD
+      }
+    })
+    .json()) as LoginResult
+  api = ky.extend({
+    hooks: {
+      beforeRequest: [
+        (request) => {
+          request.headers.set('X-Session-ID', loginResult.id)
+        }
+      ]
+    }
+  })
+  return { fileUrl: getFileUrl(loginResult), firstAlbums: await queryAlbums() }
 }
 
 interface ServerConfig {
@@ -40,43 +81,13 @@ interface LoginResult {
   config: ServerConfig
 }
 
-let loginResult: LoginResult
-
-const initApi = (() => {
-  let initialized = false
-  return async () => {
-    if (initialized) {
-      return
-    }
-    initialized = true
-    loginResult = (await ky
-      .post('/api/v1/session', {
-        json: {
-          username: 'admin',
-          password: process.env.REACT_APP_PHOTOPRISM_PASSWORD
-        }
-      })
-      .json()) as LoginResult
-    api = ky.extend({
-      hooks: {
-        beforeRequest: [
-          (request) => {
-            request.headers.set('X-Session-ID', loginResult.id)
-          }
-        ]
-      }
-    })
-  }
-})()
-
 export const unsortedPhotos = async (offset: number) => {
-  await initApi()
   const photos = (await api
     .get(`/api/v1/photos?count=${pageCount}&offset=${offset}&merged=true&unsorted=true`)
     .json()) as Array<PhotoListing>
   const empty = { videos: [] as PhotoListing[], photos: [] as PhotoListing[] }
   if (!photos?.length) {
-    console.log('no photos found')
+    console.log(`no photos found for page ${pageCount}, offset ${offset}`)
     return empty
   }
   return photos.reduce((acc, listing) => {
@@ -145,18 +156,4 @@ export const restore = async (uid: string) => {
     throw new Error(`Restore failed ${JSON.stringify(result)}`)
   }
   //const result = await api.delete(`/api/v1/photos/${photos[0].UID}/${photos[0].Files[0].UID}`)
-}
-
-export const fileUrl = (photo: PhotoListing, type: string): string => {
-  if (photo.Files.length === 0) {
-    console.error('photoprism photo has no files!')
-    return ''
-  }
-  if (photo.Files.length > 1) {
-    console.warn('photoprism photo has more than 1 file!', photo.Files)
-  }
-
-  return `${envString('REACT_APP_PHOTOPRISM_DOMAIN', '')}/api/v1/t/${photo.Files[0].Hash}/${
-    loginResult.config.previewToken
-  }/${type}`
 }

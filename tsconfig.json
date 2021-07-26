@@ -29,25 +29,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "typeRoots": [
-      "./src/@types",
-      "./node_modules/@types"
-    ],
+    "typeRoots": ["./src/@types", "./node_modules/@types"],
     "module": "esnext",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ]
+    "lib": ["dom", "dom.iterable", "esnext"]
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "**/types",
-    "**/@types",
-    "node_modules",
-    "src/**/*.test*.ts",
-    "src/**/*.spec.ts"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["**/types", "**/@types", "node_modules", "src/**/*.test*.ts", "src/**/*.spec.ts"]
 }

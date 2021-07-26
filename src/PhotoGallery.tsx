@@ -1,14 +1,16 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery'
 import { useHotkeys } from 'react-hotkeys-hook'
 import {
+  initApi,
+  unsortedPhotos,
   archive,
   addPhotoToAlbum,
-  unsortedPhotos,
   pageCount,
-  fileUrl,
   restore,
-  deletePhotoFromAlbum
+  deletePhotoFromAlbum,
+  AlbumQueryResponse,
+  fileUrl
 } from './photoprismClient'
 
 interface ImageGalleryItem extends ReactImageGalleryItem {
@@ -54,9 +56,16 @@ const initializeUndo = () => {
 
   return { one: undoOne, push: pushPhoto }
 }
+function equalsCaseInsensitive(text: string, other: string) {
+  return text.localeCompare(other, undefined, { sensitivity: 'base' }) === 0
+}
+
+interface ServiceData {
+  albums: AlbumQueryResponse[]
+  getFileUrl: fileUrl
+}
 
 const undo = initializeUndo()
-
 const PhotoGallery = (): JSX.Element => {
   const ignore = -1
   const theaterMode = false
@@ -66,6 +75,9 @@ const PhotoGallery = (): JSX.Element => {
   const [page, setPage] = useState(0)
   const [paused, setPaused] = useState(!theaterMode)
   const [processedPhotosCount, setProcessedPhotosCount] = useState(0)
+  const [serviceData, setServiceData] = useState<ServiceData | undefined>(undefined)
+  // const [albums, setAlbums] = useState([] as AlbumQueryResponse[])
+  // const [getFileUrl, setGetFileUrl] = useState<fileUrl | undefined>()
   const imageGallery = useRef(null)
 
   const currentImageGallery = (): ImageGallery | undefined => {
@@ -112,25 +124,32 @@ const PhotoGallery = (): JSX.Element => {
     setProcessedPhotosCount((prev) => prev + 1)
   })
 
-  const pick = (uid: string) => {
-    const handpicked = 'aqwsqs92olyk29f1'
-    addPhotoToAlbum(uid, handpicked)
-    return handpicked
+  const findAlbumId = (name: string) => {
+    if (!serviceData) {
+      throw new Error('servicedata not retrieved yet')
+    }
+    const handpicked = serviceData.albums.find((r) => {
+      return equalsCaseInsensitive(name, r.Slug)
+    })
+    if (!handpicked) {
+      throw new Error(`Couldn't find album with name '${name}', albums: [${serviceData.albums}]`)
+    }
+    return handpicked.UID
+  }
+  const addPhoto = (albumSlug: string) => {
+    const albumId = findAlbumId(albumSlug)
+    setProcessedPhotosCount((prev) => prev + 1)
+    actOnSelectedImage(async (photo) => {
+      addPhotoToAlbum(photo.uid, albumId)
+      undo.push({ type: ActionType.AddedToAlbum, album: albumId, photo })
+    })
+    return albumId
   }
   useHotkeys('p', () => {
-    setProcessedPhotosCount((prev) => prev + 1)
-    actOnSelectedImage(async (photo) => {
-      const album = pick(photo.uid)
-      undo.push({ type: ActionType.AddedToAlbum, album: album, photo })
-    })
+    addPhoto('handpicked')
   })
   useHotkeys('n', () => {
-    setProcessedPhotosCount((prev) => prev + 1)
-    actOnSelectedImage(async (photo) => {
-      const nah = 'aqwsqu7tzrdu7kxn'
-      addPhotoToAlbum(photo.uid, nah)
-      undo.push({ type: ActionType.AddedToAlbum, album: nah, photo })
-    })
+    addPhoto('nah')
   })
   useHotkeys('u', () => {
     setProcessedPhotosCount((prev) => prev - 1)
@@ -163,7 +182,6 @@ const PhotoGallery = (): JSX.Element => {
   useEffect(() => {
     if (preferredIndex !== ignore) {
       const index = preferredIndex < images.length ? preferredIndex : images.length - 1
-      console.log(`setting index to ${index}`)
       currentImageGallery()?.slideToIndex(index)
       setPreferredIndex(ignore)
       onSlide(index)
@@ -171,24 +189,37 @@ const PhotoGallery = (): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images])
 
+  const getServiceData = useCallback(async () => {
+    const { fileUrl: fileUrlImplementation, firstAlbums } = await initApi()
+    setServiceData({ albums: firstAlbums, getFileUrl: fileUrlImplementation })
+  }, [])
+
   useEffect(() => {
+    if (!serviceData) {
+      getServiceData()
+      return
+    }
     ;(async () => {
       const results = await unsortedPhotos(!images.length ? 0 : images.length + processedPhotosCount)
 
       if (results.videos?.length > 0) {
         for (const video of results.videos) {
-          pick(video.UID)
+          const albumId = findAlbumId('handpicked')
+          addPhotoToAlbum(video.UID, albumId)
         }
         setProcessedPhotosCount((prev) => prev + results.videos.length)
+      }
+      if (!results.photos.length) {
+        return
       }
 
       setPreferredIndex(currentIndex())
 
       setImages((prevImages) => {
         const newPhotos = results.photos.map((p) => ({
-          original: fileUrl(p, 'fit_2048'),
+          original: serviceData.getFileUrl(p, 'fit_2048'),
           originalTitle: p.FileName,
-          thumbnail: fileUrl(p, 'tile_500'),
+          thumbnail: serviceData.getFileUrl(p, 'tile_500'),
           thumbnailTitle: p.FileName,
           description: p.FileName,
           uid: p.UID
@@ -197,7 +228,7 @@ const PhotoGallery = (): JSX.Element => {
       })
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page])
+  }, [page, serviceData])
 
   return (
     <ImageGallery
