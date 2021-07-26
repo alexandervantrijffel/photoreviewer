@@ -1,4 +1,5 @@
 import ky from 'ky'
+import { envString } from './env'
 
 interface PhotoListing {
   FileName: string
@@ -11,13 +12,35 @@ interface FileListing {
   UID: string
   Video: boolean
 }
-interface LoginResult {
-  id: string
-  status: string
-}
 
 export const pageCount = 20
 let api: typeof ky
+
+interface AlbumQueryResponse {
+  UID: string
+  Slug: string
+}
+export const queryAlbums = async (): Promise<AlbumQueryResponse[]> => {
+  const result = await api.get('/api/v2/albums?count=24&offset=0&q=&category=&type=album').json<AlbumQueryResponse[]>()
+  // if (result.code !== 200) {
+  //   console.error('Album query result', result)
+  //   throw new Error(`Query albums failed ${JSON.stringify(result)}`)
+  // }
+  return result
+}
+
+interface ServerConfig {
+  previewToken: string
+  downloadToken: string
+}
+
+interface LoginResult {
+  id: string
+  status: string
+  config: ServerConfig
+}
+
+let loginResult: LoginResult
 
 const initApi = (() => {
   let initialized = false
@@ -26,7 +49,7 @@ const initApi = (() => {
       return
     }
     initialized = true
-    const loginResult = (await ky
+    loginResult = (await ky
       .post('/api/v1/session', {
         json: {
           username: 'admin',
@@ -132,5 +155,8 @@ export const fileUrl = (photo: PhotoListing, type: string): string => {
   if (photo.Files.length > 1) {
     console.warn('photoprism photo has more than 1 file!', photo.Files)
   }
-  return `/api/v1/t/${photo.Files[0].Hash}/d15ac654/${type}`
+
+  return `${envString('REACT_APP_PHOTOPRISM_DOMAIN', '')}/api/v1/t/${photo.Files[0].Hash}/${
+    loginResult.config.previewToken
+  }/${type}`
 }
