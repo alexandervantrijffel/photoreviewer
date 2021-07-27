@@ -142,38 +142,66 @@ const PhotoGallery = (): JSX.Element => {
     })
     return albumId
   }
-  useHotkeys('p', () => {
-    addPhoto('handpicked')
-  })
-  useHotkeys('n', () => {
-    addPhoto('nah')
-  })
-  useHotkeys('u', () => {
-    setProcessedPhotosCount((prev) => prev - 1)
-    const photo = undo.one()
-    if (photo) {
-      setImages((prevImages) => [photo.photo, ...prevImages])
-    }
-  })
-  useHotkeys('space', () => {
-    if (imageGallery?.current) {
-      // @ts-ignore: Object is possibly 'null'.
-      imageGallery.current.togglePlay()
-    }
-  })
+  useHotkeys(
+    'p',
+    () => {
+      addPhoto('handpicked')
+    },
+    [serviceData]
+  )
 
-  useHotkeys('j', () => {
-    if (imageGallery?.current) {
-      // @ts-ignore: Object is possibly 'null'.
-      imageGallery.current.slideLeft()
-    }
-  })
-  useHotkeys(';', () => {
-    if (imageGallery?.current) {
-      // @ts-ignore: Object is possibly 'null'.
-      imageGallery.current.slideRight()
-    }
-  })
+  useHotkeys(
+    'n',
+    () => {
+      addPhoto('nah')
+    },
+    [serviceData]
+  )
+
+  useHotkeys(
+    'u',
+    () => {
+      setProcessedPhotosCount((prev) => prev - 1)
+      const photo = undo.one()
+      if (photo) {
+        setImages((prevImages) => [photo.photo, ...prevImages])
+      }
+    },
+    [serviceData]
+  )
+
+  useHotkeys(
+    'space',
+    () => {
+      if (imageGallery?.current) {
+        // @ts-ignore: Object is possibly 'null'.
+        imageGallery.current.togglePlay()
+      }
+    },
+    [serviceData]
+  )
+
+  useHotkeys(
+    'j',
+    () => {
+      if (imageGallery?.current) {
+        // @ts-ignore: Object is possibly 'null'.
+        imageGallery.current.slideLeft()
+      }
+    },
+    [serviceData]
+  )
+
+  useHotkeys(
+    ';',
+    () => {
+      if (imageGallery?.current) {
+        // @ts-ignore: Object is possibly 'null'.
+        imageGallery.current.slideRight()
+      }
+    },
+    [serviceData]
+  )
 
   // apply preferredIndex when images are added or removed
   useEffect(() => {
