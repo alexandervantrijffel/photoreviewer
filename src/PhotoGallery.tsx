@@ -76,8 +76,6 @@ const PhotoGallery = (): JSX.Element => {
   const [paused, setPaused] = useState(!theaterMode)
   const [processedPhotosCount, setProcessedPhotosCount] = useState(0)
   const [serviceData, setServiceData] = useState<ServiceData | undefined>(undefined)
-  // const [albums, setAlbums] = useState([] as AlbumQueryResponse[])
-  // const [getFileUrl, setGetFileUrl] = useState<fileUrl | undefined>()
   const imageGallery = useRef(null)
 
   const currentImageGallery = (): ImageGallery | undefined => {
@@ -105,7 +103,6 @@ const PhotoGallery = (): JSX.Element => {
   const onSlide = (index: number) => {
     // index we get here is often undefined?! so we cannot rely on it
     if (images.length < pageCount || (index && index + pageCount / 2 > images.length)) {
-      console.log(`fetching next page`, { photoIndex: index })
       setPage((prevPage) => prevPage + 1)
     }
   }

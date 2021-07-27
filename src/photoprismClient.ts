@@ -155,5 +155,4 @@ export const restore = async (uid: string) => {
     console.error('Restore result', result)
     throw new Error(`Restore failed ${JSON.stringify(result)}`)
   }
-  //const result = await api.delete(`/api/v1/photos/${photos[0].UID}/${photos[0].Files[0].UID}`)
 }
