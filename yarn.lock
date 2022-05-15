@@ -1876,10 +1876,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-image-gallery@1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@types/react-image-gallery/-/react-image-gallery-1.0.4.tgz#da1fc9d85ebc223d0f5c72d7a78493be3d381398"
-  integrity sha512-BirrX9wEPIH/6XhScYNyQywxBaVmkO9EJPpjJP0l971k81gE/81tZJnxQcZ8O0zfSGGh0frx3PT62A1aX/W7gQ==
+"@types/react-image-gallery@1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@types/react-image-gallery/-/react-image-gallery-1.0.5.tgz#563234ac0fa131e2920199d191fca0c1594ba29d"
+  integrity sha512-CjIjFXmV7zGRO/FkdtPK31Rwj0ud7Xz/9e5o4DCX2Lx96jR8+0xCmKeUAQQVN3pKc6jUjOC0f/aEylhKg8vhAw==
   dependencies:
     "@types/react" "*"
 
@@ -9262,10 +9262,10 @@ react-hotkeys-hook@3.4.4:
   dependencies:
     hotkeys-js "3.8.7"
 
-react-image-gallery@1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/react-image-gallery/-/react-image-gallery-1.2.2.tgz#c6c957d885c8f30469b7af32156a8efd7dc386ae"
-  integrity sha512-tN1vKcmvJeCjTb/FmL+5ikXKTlG+Ft1JzH/exB3SXw28DyGGtruPM/lL/u2UBDCtzEpnT1MLPjOcIZXTjjE7jQ==
+react-image-gallery@1.2.8:
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/react-image-gallery/-/react-image-gallery-1.2.8.tgz#8f41b0ade1c115a4f34621771c182af33d2d9a62"
+  integrity sha512-7KbWcWChUMHRGyJHA/eH3injWF9/2WTlQXjV6fym1DqwrINSVIh1hLiqmujh/XANstW+osqSu5WFKKPy2F2gbA==
 
 react-is@^16.8.1:
   version "16.13.1"
