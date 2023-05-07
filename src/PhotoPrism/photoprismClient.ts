@@ -1,5 +1,5 @@
 import ky from 'ky'
-import { envString } from './env'
+import { envString } from '../env'
 
 interface PhotoListing {
   FileName: string
