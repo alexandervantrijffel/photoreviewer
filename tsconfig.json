@@ -35,5 +35,5 @@
     "types": ["vite/client", "vite-plugin-svgr/client", "node"]
   },
   "include": ["src/**/*"],
-  "exclude": ["**/types", "**/@types", "node_modules", "src/**/*.test*.ts", "src/**/*.spec.ts"]
+  "exclude": ["**/types", "**/@types", "node_modules", "src/**/*.test*.ts", "src/**/*.test*.tsx", "src/**/*.spec.ts"]
 }
