@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es2016",
+    "target": "ESNext",
     "sourceMap": true,
     "declaration": true,
     "allowJs": false,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
@@ -31,7 +31,8 @@
     "jsx": "react-jsx",
     "typeRoots": ["./src/@types", "./node_modules/@types"],
     "module": "esnext",
-    "lib": ["dom", "dom.iterable", "esnext"]
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["vite/client", "vite-plugin-svgr/client"]
   },
   "include": ["src/**/*"],
   "exclude": ["**/types", "**/@types", "node_modules", "src/**/*.test*.ts", "src/**/*.spec.ts"]
