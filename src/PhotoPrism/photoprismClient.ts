@@ -31,30 +31,29 @@ export type fileUrl = (photo: PhotoListing, type: string) => string
 
 export const getFileUrl =
   (loginResult: LoginResult) =>
-  (photo: PhotoListing, type: string): string => {
-    if (!photo) {
-      console.log('nophoto!')
-      return 'nophoto'
-    }
-    if (photo.Files.length === 0) {
-      console.error('photoprism photo has no files!')
-      return ''
-    }
-    if (photo.Files.length > 1) {
-      console.warn('photoprism photo has more than 1 file!', photo.Files)
-    }
+    (photo: PhotoListing, type: string): string => {
+      if (!photo) {
+        console.log('nophoto!')
+        return 'nophoto'
+      }
+      if (photo.Files.length === 0) {
+        console.error('photoprism photo has no files!')
+        return ''
+      }
+      if (photo.Files.length > 1) {
+        console.warn('photoprism photo has more than 1 file!', photo.Files)
+      }
 
-    return `${envString('REACT_APP_PHOTOPRISM_DOMAIN', '')}/api/v1/t/${photo.Files[0].Hash}/${
-      loginResult.config.previewToken
-    }/${type}`
-  }
+      return `${envString('REACT_APP_PHOTOPRISM_DOMAIN', '')}/api/v1/t/${photo.Files[0].Hash}/${loginResult.config.previewToken
+        }/${type}`
+    }
 
 export const initApi = async () => {
   const loginResult = (await ky
     .post('/api/v1/session', {
       json: {
         username: 'admin',
-        password: process.env.REACT_APP_PHOTOPRISM_PASSWORD
+        password: import.meta.env.VITE_PHOTOPRISM_PASSWORD
       }
     })
     .json()) as LoginResult
