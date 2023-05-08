@@ -6,8 +6,6 @@ module.exports = {
   },
   extends: [
     'plugin:react/recommended',
-    'react-app',
-    'react-app/jest',
     // 'standard',
     // 'prettier',
     'plugin:@typescript-eslint/recommended' // Uses the recommended rules from the @typescript-eslint/eslint-plugin
