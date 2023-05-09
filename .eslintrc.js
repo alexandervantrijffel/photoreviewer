@@ -5,12 +5,27 @@ module.exports = {
     sourceType: 'module' // Allows for the use of imports
   },
   extends: [
+    // By extending from a plugin config, we can get recommended rules without having to add them manually.
+    'eslint:recommended',
     'plugin:react/recommended',
-    // 'standard',
-    // 'prettier',
-    'plugin:@typescript-eslint/recommended' // Uses the recommended rules from the @typescript-eslint/eslint-plugin
-    // 'plugin:prettier/recommended', // Enables eslint-plugin-prettier and eslint-config-prettier. This will display prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+    'plugin:import/recommended',
+    'plugin:jsx-a11y/recommended',
+    'plugin:@typescript-eslint/recommended',
+    // This disables the formatting rules in ESLint that Prettier is going to be responsible for handling.
+    // Make sure it's always the last config, so it gets the chance to override other configs.
+    'eslint-config-prettier'
   ],
+  settings: {
+    react: {
+      version: 'detect'
+    },
+    'import/resolver': {
+      node: {
+        paths: ['src'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx']
+      }
+    }
+  },
   rules: {
     'newline-per-chained-call': 'error',
     '@typescript-eslint/explicit-function-return-type': 'off',
