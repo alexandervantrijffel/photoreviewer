@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   ky:
-    specifier: 0.28.7
-    version: 0.28.7
+    specifier: 0.33.3
+    version: 0.33.3
   react:
     specifier: 17.0.2
     version: 17.0.2
@@ -2678,9 +2678,9 @@ packages:
       object.assign: 4.1.4
     dev: true
 
-  /ky@0.28.7:
-    resolution: {integrity: sha512-a23i6qSr/ep15vdtw/zyEQIDLoUaKDg9Jf04CYl/0ns/wXNYna26zJpI+MeIFaPeDvkrjLPrKtKOiiI3IE53RQ==}
-    engines: {node: '>=12'}
+  /ky@0.33.3:
+    resolution: {integrity: sha512-CasD9OCEQSFIam2U8efFK81Yeg8vNMTBUqtMOHlrcWQHqUX3HeCl9Dr31u4toV7emlH8Mymk5+9p0lL6mKb/Xw==}
+    engines: {node: '>=14.16'}
     dev: false
 
   /language-subtag-registry@0.3.22:
