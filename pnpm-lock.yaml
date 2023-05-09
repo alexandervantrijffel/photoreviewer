@@ -11,8 +11,8 @@ dependencies:
     specifier: 17.0.2
     version: 17.0.2(react@17.0.2)
   react-hotkeys-hook:
-    specifier: 3.4.4
-    version: 3.4.4(react-dom@17.0.2)(react@17.0.2)
+    specifier: 3.4.7
+    version: 3.4.7(react-dom@17.0.2)(react@17.0.2)
   react-image-gallery:
     specifier: 1.2.2
     version: 1.2.2(react@17.0.2)
@@ -2446,8 +2446,8 @@ packages:
       function-bind: 1.1.1
     dev: true
 
-  /hotkeys-js@3.8.7:
-    resolution: {integrity: sha512-ckAx3EkUr5XjDwjEHDorHxRO2Kb7z6Z2Sxul4MbBkN8Nho7XDslQsgMJT+CiJ5Z4TgRxxvKHEpuLE3imzqy4Lg==}
+  /hotkeys-js@3.9.4:
+    resolution: {integrity: sha512-2zuLt85Ta+gIyvs4N88pCYskNrxf1TFv3LR9t5mdAZIX8BcgQQ48F2opUptvHa6m8zsy5v/a0i9mWzTrlNWU0Q==}
     dev: false
 
   /html-encoding-sniffer@3.0.0:
@@ -3377,13 +3377,13 @@ packages:
       react: 17.0.2
       scheduler: 0.20.2
 
-  /react-hotkeys-hook@3.4.4(react-dom@17.0.2)(react@17.0.2):
-    resolution: {integrity: sha512-vaORq07rWgmuF3owWRhgFV/3VL8/l2q9lz0WyVEddJnWTtKW+AOgU5YgYKuwN6h6h7bCcLG3MFsJIjCrM/5DvQ==}
+  /react-hotkeys-hook@3.4.7(react-dom@17.0.2)(react@17.0.2):
+    resolution: {integrity: sha512-+bbPmhPAl6ns9VkXkNNyxlmCAIyDAcWbB76O4I0ntr3uWCRuIQf/aRLartUahe9chVMPj+OEzzfk3CQSjclUEQ==}
     peerDependencies:
       react: '>=16.8.1'
       react-dom: '>=16.8.1'
     dependencies:
-      hotkeys-js: 3.8.7
+      hotkeys-js: 3.9.4
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
     dev: false
