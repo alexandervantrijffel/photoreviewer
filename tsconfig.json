@@ -23,7 +23,6 @@
     "removeComments": false,
     "skipDefaultLibCheck": true,
     "stripInternal": true,
-    "suppressImplicitAnyIndexErrors": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
