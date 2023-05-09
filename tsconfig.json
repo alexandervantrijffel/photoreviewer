@@ -1,4 +1,5 @@
 {
+  "extends": "./tsconfig-base.json",
   "compilerOptions": {
     "target": "ESNext",
     "sourceMap": true,
@@ -34,10 +35,5 @@
     }
   },
   "include": ["src"],
-  "exclude": ["**/types", "**/@types", "node_modules", "src/**/*.test*.ts", "src/**/*.test*.tsx", "src/**/*.spec.ts"],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+  "exclude": ["**/types", "**/@types", "node_modules", "src/**/*.test*.ts", "src/**/*.test*.tsx", "src/**/*.spec.ts"]
 }
