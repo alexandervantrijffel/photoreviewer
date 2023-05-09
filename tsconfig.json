@@ -6,7 +6,6 @@
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "emitDecoratorMetadata": true,
@@ -23,16 +22,22 @@
     "removeComments": false,
     "skipDefaultLibCheck": true,
     "stripInternal": true,
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "typeRoots": ["vitest/globals", "./src/@types", "./node_modules/@types"],
-    "module": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "types": ["vite/client", "vite-plugin-svgr/client", "node"]
+    "types": ["vite/client", "vite-plugin-svgr/client", "node"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src/**/*"],
-  "exclude": ["**/types", "**/@types", "node_modules", "src/**/*.test*.ts", "src/**/*.test*.tsx", "src/**/*.spec.ts"]
+  "include": ["src"],
+  "exclude": ["**/types", "**/@types", "node_modules", "src/**/*.test*.ts", "src/**/*.test*.tsx", "src/**/*.spec.ts"],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }
