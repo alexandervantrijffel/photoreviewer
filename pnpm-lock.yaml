@@ -14,8 +14,8 @@ dependencies:
     specifier: 3.4.4
     version: 3.4.4(react-dom@17.0.2)(react@17.0.2)
   react-image-gallery:
-    specifier: 1.2.2
-    version: 1.2.2(react@17.0.2)
+    specifier: 1.2.11
+    version: 1.2.11(react@17.0.2)
 
 devDependencies:
   '@testing-library/jest-dom':
@@ -37,8 +37,8 @@ devDependencies:
     specifier: 17.0.8
     version: 17.0.8
   '@types/react-image-gallery':
-    specifier: 1.0.4
-    version: 1.0.4
+    specifier: 1.2.0
+    version: 1.2.0
   '@typescript-eslint/eslint-plugin':
     specifier: ^5.59.5
     version: 5.59.5(@typescript-eslint/parser@5.59.5)(eslint@8.40.0)(typescript@4.5.4)
@@ -978,10 +978,10 @@ packages:
       '@types/react': 17.0.15
     dev: true
 
-  /@types/react-image-gallery@1.0.4:
-    resolution: {integrity: sha512-BirrX9wEPIH/6XhScYNyQywxBaVmkO9EJPpjJP0l971k81gE/81tZJnxQcZ8O0zfSGGh0frx3PT62A1aX/W7gQ==}
+  /@types/react-image-gallery@1.2.0:
+    resolution: {integrity: sha512-y5OEficUWcnGEc6KvflRXgvhtaMSsDH6JGT3/SJs0FV/RgtKuIgrUpGbDw5MdzyUwe/D8sJTo+aw8NOkaX0nIA==}
     dependencies:
-      '@types/react': 17.0.15
+      '@types/react': 17.0.11
     dev: true
 
   /@types/react@17.0.11:
@@ -3388,10 +3388,10 @@ packages:
       react-dom: 17.0.2(react@17.0.2)
     dev: false
 
-  /react-image-gallery@1.2.2(react@17.0.2):
-    resolution: {integrity: sha512-tN1vKcmvJeCjTb/FmL+5ikXKTlG+Ft1JzH/exB3SXw28DyGGtruPM/lL/u2UBDCtzEpnT1MLPjOcIZXTjjE7jQ==}
+  /react-image-gallery@1.2.11(react@17.0.2):
+    resolution: {integrity: sha512-YLMCdNSCf3YPhRmnjEOdEZGEXghTMx4o3dlAqd0rz0nAyebUvTz/xJnIHPActbPSHCvVJgt5A09EPHYbGqw++w==}
     peerDependencies:
-      react: ^16.0.0 || ^17.0.0
+      react: ^16.0.0 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 17.0.2
     dev: false
