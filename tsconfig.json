@@ -6,6 +6,7 @@
     "declaration": true,
     "allowJs": false,
     "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "esModuleInterop": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -21,7 +22,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "removeComments": false,
-    "skipDefaultLibCheck": true,
     "stripInternal": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -29,7 +29,7 @@
     "jsx": "react-jsx",
     "typeRoots": ["vitest/globals", "./src/@types", "./node_modules/@types"],
     "lib": ["dom", "dom.iterable", "esnext"],
-    "types": ["vite/client", "vite-plugin-svgr/client", "node"],
+    "types": ["vite/client", "vite-plugin-svgr/client"],
     "paths": {
       "@/*": ["./src/*"]
     }
