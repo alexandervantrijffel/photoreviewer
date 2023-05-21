@@ -99,7 +99,7 @@ const Service = () => {
           originalTitle: 'originalTitle',
           thumbnail: ptr.baseUrl + p.url,
           thumbnailTitle: 'thumbnailTitle',
-          description: 'description',
+          description: p.url,
           uid: p.url,
         }))
         return prevImages.concat(newPhotos)

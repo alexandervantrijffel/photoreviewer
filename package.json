@@ -39,8 +39,8 @@
     "vitest": "^0.31.1"
   },
   "scripts": {
+    "build": "tsc && vite build",
     "start": "vite",
-    "build": "tsc --skipLibCheck && vite build",
     "serve": "vite preview",
     "dev": "vite",
     "test": "vitest watch",

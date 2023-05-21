@@ -1,0 +1,16 @@
+:8997 {
+
+    root * /app/dist
+    file_server
+    encode gzip
+
+    # reverse_proxy /api*  localhost:5000
+
+    # log {
+    #     output file /var/log/caddy/access.log {
+    #             roll_size 1mb
+    #             roll_keep 4
+    #             roll_keep_for 24h
+    #     }
+    # }
+}
