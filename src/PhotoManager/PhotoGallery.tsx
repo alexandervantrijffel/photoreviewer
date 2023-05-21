@@ -107,17 +107,6 @@ const Service = () => {
     })()
   }, [data])
 
-  // apply preferredIndex when images are added or removed
-  useEffect(() => {
-    if (preferredIndex !== ignore) {
-      const index = preferredIndex < images.length ? preferredIndex : images.length - 1
-      currentImageGallery()?.slideToIndex(index)
-      setPreferredIndex(ignore)
-      onSlide(index)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [images])
-
   const addPhoto = (score: string) => {
     setProcessedPhotosCount((prev) => prev + 1)
     actOnSelectedImage(async (photo) => {
@@ -128,7 +117,7 @@ const Service = () => {
     })
   }
   useHotkeys(
-    'p',
+    'b',
     () => {
       addPhoto('BEST')
     },
@@ -138,10 +127,62 @@ const Service = () => {
   useHotkeys(
     'n',
     () => {
-      addPhoto('SOSO')
+      addPhoto('NAH')
     },
     [data],
   )
+
+  useHotkeys('del, backspace', () => {
+    actOnSelectedImage(async (_photo) => {
+      addPhoto('WORST')
+      // undo.push({ type: ActionType.Archived, photo: photo })
+    })
+    setProcessedPhotosCount((prev) => prev + 1)
+  })
+
+  useHotkeys(
+    'space',
+    () => {
+      if (imageGallery?.current) {
+        // @ts-ignore: Object is possibly 'null'.
+        imageGallery.current.togglePlay()
+      }
+    },
+    [data],
+  )
+
+  useHotkeys(
+    'j',
+    () => {
+      if (imageGallery?.current) {
+        // @ts-ignore: Object is possibly 'null'.
+        imageGallery.current.slideLeft()
+      }
+    },
+    [data],
+  )
+
+  useHotkeys(
+    ';',
+    () => {
+      if (imageGallery?.current) {
+        // @ts-ignore: Object is possibly 'null'.
+        imageGallery.current.slideRight()
+      }
+    },
+    [data],
+  )
+
+  // apply preferredIndex when images are added or removed
+  useEffect(() => {
+    if (preferredIndex !== ignore) {
+      const index = preferredIndex < images.length ? preferredIndex : images.length - 1
+      currentImageGallery()?.slideToIndex(index)
+      setPreferredIndex(ignore)
+      onSlide(index)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [images])
 
   return (
     <ImageGallery
