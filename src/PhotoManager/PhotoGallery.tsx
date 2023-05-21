@@ -39,7 +39,6 @@ const Service = () => {
       }
     }
   `)
-  console.log('Have photos', data)
 
   const theaterMode = false
   const [images, setImages] = useState<Readonly<ImageGalleryItem[]>>([])
@@ -53,11 +52,17 @@ const Service = () => {
     // @ts-ignore: Object is possibly 'null'.
     return imageGallery.current
   }
+
   const currentIndex = (): number => {
     return currentImageGallery()?.getCurrentIndex() ?? ignore
   }
 
+  const currentImage = (): ReactImageGalleryItem | undefined => {
+    return currentImageGallery()?.props?.items[currentIndex()]
+  }
+
   const onSlide = (_index: number) => {
+    // console.log('onSlide, index is', index)
     // index we get here is often undefined?! so we cannot rely on it
     // if (images.length < pageCount || (index && index + pageCount / 2 > images.length)) {
     //   setPage((prevPage) => prevPage + 1)
@@ -74,24 +79,29 @@ const Service = () => {
     const index = currentIndex()
     if (index === ignore) {
       console.error('Cannot actOnSelectedImage as no image is selected')
+      return
     }
-    setPreferredIndex(index)
+
+    ; (async () => {
+      const image = currentImage()
+      if (!image) return
+      await action(image as ImageGalleryItem)
+    })()
+
     setImages((prevImages) => {
-      ;(async () => {
-        await action(prevImages[index])
-      })()
       return prevImages.filter((image) => image !== prevImages[index])
     })
+    setPreferredIndex(index)
   }
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       const ptr = data?.photosToReview?.output
-      console.log('have ptr', data)
       if (!ptr?.photos) {
         return
       }
       setPreferredIndex(currentIndex())
+      console.log('updating images')
       setImages((prevImages) => {
         // @ts-ignore: use any
         const newPhotos = ptr?.photos.map((p: any) => ({
@@ -110,9 +120,14 @@ const Service = () => {
   const addPhoto = (score: string) => {
     setProcessedPhotosCount((prev) => prev + 1)
     actOnSelectedImage(async (photo) => {
+      if (!photo?.uid) {
+        console.error('actOnSelectedImage: photo is empty', photo)
+      }
+      console.log('setting review photo on photo', {
+        url: photo.uid,
+        score,
+      })
       setReviewPhoto(photo.uid, score)
-      // const albumId = findAlbumId(albumSlug)
-      // addPhotoToAlbum(photo.uid, albumId)
       // undo.push({ type: ActionType.AddedToAlbum, album: albumId, photo })
     })
   }
@@ -144,8 +159,7 @@ const Service = () => {
     'space',
     () => {
       if (imageGallery?.current) {
-        // @ts-ignore: Object is possibly 'null'.
-        imageGallery.current.togglePlay()
+        imageGallery?.current?.togglePlay()
       }
     },
     [data],
@@ -155,7 +169,7 @@ const Service = () => {
     'j',
     () => {
       if (imageGallery?.current) {
-        // @ts-ignore: Object is possibly 'null'.
+        // @ts-ignore: does not exist on type never
         imageGallery.current.slideLeft()
       }
     },
@@ -166,7 +180,7 @@ const Service = () => {
     ';',
     () => {
       if (imageGallery?.current) {
-        // @ts-ignore: Object is possibly 'null'.
+        // @ts-ignore: does not exist on type never
         imageGallery.current.slideRight()
       }
     },
