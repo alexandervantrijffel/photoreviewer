@@ -26,7 +26,7 @@ const Service = () => {
     reviewPhotoMutation({ variables: { path, score } })
   }
 
-  const { data } = useQuery(gql`
+  const { data, loading, error, refetch } = useQuery(gql`
     {
       photosToReview {
         output {
@@ -85,35 +85,48 @@ const Service = () => {
     ; (async () => {
       const image = currentImage()
       if (!image) return
-      await action(image as ImageGalleryItem)
-    })()
 
+      await action(image as ImageGalleryItem)
+
+      setImages((prevImages) => {
+        return prevImages.filter((img) => img !== prevImages[index])
+      })
+
+      const itemsLength = currentImageGallery()?.props?.items?.length
+      console.log('itemsLength', itemsLength)
+      if (itemsLength && itemsLength <= 1) {
+        console.log('refetching')
+        refetch()
+      }
+
+      setPreferredIndex(index)
+    })()
+  }
+
+  async function loadData() {
+    const ptr = data?.photosToReview?.output
+    if (!ptr?.photos) {
+      return
+    }
+    setPreferredIndex(currentIndex())
+    console.log('updating images')
     setImages((prevImages) => {
-      return prevImages.filter((image) => image !== prevImages[index])
+      // @ts-ignore: use any
+      const newPhotos = ptr?.photos.map((p: any) => ({
+        original: ptr.baseUrl + p.url,
+        originalTitle: 'originalTitle',
+        thumbnail: ptr.baseUrl + p.url,
+        thumbnailTitle: 'thumbnailTitle',
+        description: p.url,
+        uid: p.url,
+      }))
+      return prevImages.concat(newPhotos)
     })
-    setPreferredIndex(index)
   }
 
   useEffect(() => {
     ; (async () => {
-      const ptr = data?.photosToReview?.output
-      if (!ptr?.photos) {
-        return
-      }
-      setPreferredIndex(currentIndex())
-      console.log('updating images')
-      setImages((prevImages) => {
-        // @ts-ignore: use any
-        const newPhotos = ptr?.photos.map((p: any) => ({
-          original: ptr.baseUrl + p.url,
-          originalTitle: 'originalTitle',
-          thumbnail: ptr.baseUrl + p.url,
-          thumbnailTitle: 'thumbnailTitle',
-          description: p.url,
-          uid: p.url,
-        }))
-        return prevImages.concat(newPhotos)
-      })
+      await loadData()
     })()
   }, [data])
 
@@ -136,7 +149,7 @@ const Service = () => {
     () => {
       addPhoto('BEST')
     },
-    [data],
+    [],
   )
 
   useHotkeys(
@@ -144,7 +157,7 @@ const Service = () => {
     () => {
       addPhoto('NAH')
     },
-    [data],
+    [],
   )
 
   useHotkeys('del, backspace', () => {
@@ -159,10 +172,11 @@ const Service = () => {
     'space',
     () => {
       if (imageGallery?.current) {
+        // @ts-ignore: does not exist on type never
         imageGallery?.current?.togglePlay()
       }
     },
-    [data],
+    [],
   )
 
   useHotkeys(
@@ -173,7 +187,7 @@ const Service = () => {
         imageGallery.current.slideLeft()
       }
     },
-    [data],
+    [],
   )
 
   useHotkeys(
@@ -184,7 +198,7 @@ const Service = () => {
         imageGallery.current.slideRight()
       }
     },
-    [data],
+    [],
   )
 
   // apply preferredIndex when images are added or removed
@@ -197,6 +211,17 @@ const Service = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images])
+
+  if (loading)
+    return (
+      <p
+        style={{
+          color: 'white',
+        }}
+      >
+        Loading...
+      </p>
+    )
 
   return (
     <ImageGallery
