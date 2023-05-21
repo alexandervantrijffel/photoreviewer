@@ -10,7 +10,7 @@ import {
   restore,
   deletePhotoFromAlbum,
   AlbumQueryResponse,
-  fileUrl
+  fileUrl,
 } from './photoprismClient'
 
 interface ImageGalleryItem extends ReactImageGalleryItem {
@@ -19,7 +19,7 @@ interface ImageGalleryItem extends ReactImageGalleryItem {
 
 enum ActionType {
   Archived,
-  AddedToAlbum
+  AddedToAlbum,
 }
 
 interface UndoItem {
@@ -133,6 +133,7 @@ const PhotoGallery = (): JSX.Element => {
     }
     return handpicked.UID
   }
+
   const addPhoto = (albumSlug: string) => {
     const albumId = findAlbumId(albumSlug)
     setProcessedPhotosCount((prev) => prev + 1)
@@ -147,7 +148,7 @@ const PhotoGallery = (): JSX.Element => {
     () => {
       addPhoto('handpicked')
     },
-    [serviceData]
+    [serviceData],
   )
 
   useHotkeys(
@@ -155,7 +156,7 @@ const PhotoGallery = (): JSX.Element => {
     () => {
       addPhoto('nah')
     },
-    [serviceData]
+    [serviceData],
   )
 
   useHotkeys(
@@ -167,7 +168,7 @@ const PhotoGallery = (): JSX.Element => {
         setImages((prevImages) => [photo.photo, ...prevImages])
       }
     },
-    [serviceData]
+    [serviceData],
   )
 
   useHotkeys(
@@ -178,7 +179,7 @@ const PhotoGallery = (): JSX.Element => {
         imageGallery.current.togglePlay()
       }
     },
-    [serviceData]
+    [serviceData],
   )
 
   useHotkeys(
@@ -189,7 +190,7 @@ const PhotoGallery = (): JSX.Element => {
         imageGallery.current.slideLeft()
       }
     },
-    [serviceData]
+    [serviceData],
   )
 
   useHotkeys(
@@ -200,7 +201,7 @@ const PhotoGallery = (): JSX.Element => {
         imageGallery.current.slideRight()
       }
     },
-    [serviceData]
+    [serviceData],
   )
 
   // apply preferredIndex when images are added or removed
@@ -247,7 +248,7 @@ const PhotoGallery = (): JSX.Element => {
           thumbnail: serviceData.getFileUrl(p, 'tile_500'),
           thumbnailTitle: p.FileName,
           description: p.FileName,
-          uid: p.UID
+          uid: p.UID,
         }))
         return prevImages.concat(newPhotos)
       })

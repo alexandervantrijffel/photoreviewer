@@ -1,20 +1,40 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { gql, useQuery } from '@apollo/client'
+import { gql, useQuery, useMutation } from '@apollo/client'
 import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery'
 import 'react-image-gallery/styles/css/image-gallery.css'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 interface ImageGalleryItem extends ReactImageGalleryItem {
   uid: string
 }
 
+///     mutation {
+///       reviewPhoto(path:"/albumx/testphoto.jpg", score: WORST)
+///     }
+const REVIEWPHOTO = gql`
+  mutation ($path: String!, $score: ReviewScore!) {
+    reviewPhoto(path: $path, score: $score) {
+      success
+      output
+    }
+  }
+`
+
 const Service = () => {
+  const [reviewPhotoMutation] = useMutation(REVIEWPHOTO)
+  const setReviewPhoto = (path: string, score: string) => {
+    reviewPhotoMutation({ variables: { path, score } })
+  }
+
   const { data } = useQuery(gql`
     {
       photosToReview {
-        baseUrl
-        photos {
-          album
-          url
+        output {
+          baseUrl
+          photos {
+            album
+            url
+          }
         }
       }
     }
@@ -26,6 +46,7 @@ const Service = () => {
   const [paused, setPaused] = useState(!theaterMode)
   const ignore = -1
   const [preferredIndex, setPreferredIndex] = useState(ignore)
+  const [processedPhotosCount, setProcessedPhotosCount] = useState(0)
 
   const imageGallery = useRef(null)
   const currentImageGallery = (): ImageGallery | undefined => {
@@ -49,16 +70,31 @@ const Service = () => {
     setPaused(false)
   }
 
+  const actOnSelectedImage = (action: (photo: ImageGalleryItem) => Promise<void>): void => {
+    const index = currentIndex()
+    if (index === ignore) {
+      console.error('Cannot actOnSelectedImage as no image is selected')
+    }
+    setPreferredIndex(index)
+    setImages((prevImages) => {
+      ;(async () => {
+        await action(prevImages[index])
+      })()
+      return prevImages.filter((image) => image !== prevImages[index])
+    })
+  }
+
   useEffect(() => {
     ;(async () => {
-      if (!data?.photosToReview?.photos) {
+      const ptr = data?.photosToReview?.output
+      console.log('have ptr', data)
+      if (!ptr?.photos) {
         return
       }
       setPreferredIndex(currentIndex())
-      const ptr = data?.photosToReview
       setImages((prevImages) => {
         // @ts-ignore: use any
-        const newPhotos = data.photosToReview.photos.map((p: any) => ({
+        const newPhotos = ptr?.photos.map((p: any) => ({
           original: ptr.baseUrl + p.url,
           originalTitle: 'originalTitle',
           thumbnail: ptr.baseUrl + p.url,
@@ -81,6 +117,31 @@ const Service = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images])
+
+  const addPhoto = (score: string) => {
+    setProcessedPhotosCount((prev) => prev + 1)
+    actOnSelectedImage(async (photo) => {
+      setReviewPhoto(photo.uid, score)
+      // const albumId = findAlbumId(albumSlug)
+      // addPhotoToAlbum(photo.uid, albumId)
+      // undo.push({ type: ActionType.AddedToAlbum, album: albumId, photo })
+    })
+  }
+  useHotkeys(
+    'p',
+    () => {
+      addPhoto('BEST')
+    },
+    [data],
+  )
+
+  useHotkeys(
+    'n',
+    () => {
+      addPhoto('SOSO')
+    },
+    [data],
+  )
 
   return (
     <ImageGallery
