@@ -1,12 +1,13 @@
-import React from 'react'
+import React, { StrictMode } from 'react'
+import ReactDOM from 'react-dom'
+
 import './index.css'
 import App from './App'
 import { createRoot } from 'react-dom/client'
 
-createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  </React.StrictMode>,
+// @ts-ignore: crazy type error
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
 )

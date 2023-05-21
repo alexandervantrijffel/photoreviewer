@@ -16,8 +16,9 @@ import { getMainDefinition } from '@apollo/client/utilities'
 import { createClient } from 'graphql-ws'
 import { createContext, FC, useContext, useEffect, useState } from 'react'
 
-import type { ErrorMessage } from '@/components/Modal/Error/Error'
-import { Loading } from '@/features/Discovery'
+export interface ErrorMessage {
+  message: string
+}
 
 interface AppApolloProviderProps {
   children: React.ReactNode
@@ -33,9 +34,9 @@ const ApolloErrorContext = createContext<[ErrorMessage[], () => void]>([
 export const getGraphQLHost = () => {
   const { VITE_MEDIA_MANAGER_GRAPHQL_HOST } = import.meta.env
   // assume we run in the browser, just use the current hostname
-  if (import.meta.env.PROD || !VITE_MEDIA_MANAGER_GRAPHQL_HOST) {
+  if (!VITE_MEDIA_MANAGER_GRAPHQL_HOST) {
     // host includes hostname and port
-    return window.location.host.replace('1421', '8000')
+    return window.location.host.replace('1421', '8998')
   }
   // if (!VITE_MEDIA_MANAGER_GRAPHQL_HOST) {
   //   throw new Error('missing VITE_GRAPHQL_HOST env var')
@@ -73,7 +74,7 @@ export const AppApolloProvider: FC<AppApolloProviderProps> = ({ children }) => {
       uri,
     })
 
-    let activeSocket: any, timedOut: NodeJS.Timeout
+    let activeSocket: any, timedOut: number
     const wsLink = new GraphQLWsLink(
       createClient({
         url: `ws://${endpoint}/graphql`,

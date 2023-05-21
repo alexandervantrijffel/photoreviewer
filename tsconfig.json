@@ -1,12 +1,10 @@
 {
   "extends": "./tsconfig-base.json",
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "esnext",
     "sourceMap": true,
     "declaration": true,
     "allowJs": false,
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
     "esModuleInterop": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -27,13 +25,26 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "typeRoots": ["vitest/globals", "./src/@types", "./node_modules/@types"],
     "lib": ["dom", "dom.iterable", "esnext"],
+    "typeRoots": ["vitest/globals", "./src/@types", "./node_modules/@types"],
     "types": ["vite/client", "vite-plugin-svgr/client"],
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["**/types", "**/@types", "node_modules", "src/**/*.test*.ts", "src/**/*.test*.tsx", "src/**/*.spec.ts"]
+  "exclude": [
+    "**/types",
+    "**/@types",
+    "node_modules/**",
+    "src/**/*.test*.ts",
+    "src/**/*.test*.tsx",
+    "src/**/*.spec.ts",
+    "node_modules",
+    "./node_modules",
+    "./node_modules/*",
+    "node_modules/.pnpm/graphql@16.6.0/node_modules/graphql/language/ast.d.ts"
+  ]
 }
