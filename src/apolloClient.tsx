@@ -31,16 +31,15 @@ const ApolloErrorContext = createContext<[ErrorMessage[], () => void]>([
 ])
 
 export const getGraphQLHost = () => {
-  // assume we run in the browser, just use the current hostname
-  if (import.meta.env.PROD) {
-    // host includes hostname and port
-    return window.location.host
-  }
-
   const { VITE_MEDIA_MANAGER_GRAPHQL_HOST } = import.meta.env
-  if (!VITE_MEDIA_MANAGER_GRAPHQL_HOST) {
-    throw new Error('missing VITE_GRAPHQL_HOST env var')
+  // assume we run in the browser, just use the current hostname
+  if (import.meta.env.PROD || !VITE_MEDIA_MANAGER_GRAPHQL_HOST) {
+    // host includes hostname and port
+    return window.location.host.replace('1421', '8000')
   }
+  // if (!VITE_MEDIA_MANAGER_GRAPHQL_HOST) {
+  //   throw new Error('missing VITE_GRAPHQL_HOST env var')
+  // }
 
   return VITE_MEDIA_MANAGER_GRAPHQL_HOST
 }
