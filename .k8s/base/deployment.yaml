@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: photoreviewer
+  name: photoreviewer
+  namespace: jellyfin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: photoreviewer
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: photoreviewer
+    spec:
+      containers:
+        - name: photoreviewer
+          image: registry.structura.dev/photoreviewer
+          ports:
+            - containerPort: 8997
+              name: webserver

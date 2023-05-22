@@ -1,0 +1,47 @@
+name: Build & Test
+
+env:
+  APP_NAME: photoreviewer
+  CARGO_TERM_COLOR: always
+
+on:
+  push:
+    branches:
+      - main
+
+    paths-ignore:
+      - 'README.md'
+  # pull_request:
+  #   branches: [ main ]
+
+concurrency:
+  group: deploytoprod
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    outputs:
+      github-sha: ${{ steps.set-outputs.outputs.github-sha }}
+      app-name: ${{ steps.set-outputs.outputs.app-name }}
+    steps:
+      - name: Export env vars
+        id: set-outputs
+        run: |
+          echo "github-sha=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+          echo "app-name=${APP_NAME}" >> $GITHUB_OUTPUT
+
+  build-docker:
+    needs: [build-test]
+    uses: alexandervantrijffel/workflows/.github/workflows/deploy-docker-kustomize-v2.yaml@main
+    with:
+      app-name: ${{ needs.build-test.outputs.app-name }}
+      docker-image: ci/${{ github.job }}
+      github-sha: ${{ needs.build-test.outputs.github-sha }}
+      build-number: ${{ github.run_number }}
+    secrets:
+      k3s-dac-deploy-key: ${{ secrets.K3S_DAC_DEPLOY_KEY }}
+      registry: ${{ secrets.REGISTRY_URL }}
+      registry-username: ${{ secrets.REGISTRY_USERNAME }}
+      registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+      gh-pat-token: ${{ secrets.GH_PAT_TOKEN }}
