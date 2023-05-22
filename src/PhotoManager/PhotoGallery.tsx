@@ -79,28 +79,35 @@ const Service = () => {
     const index = currentIndex()
     if (index === ignore) {
       console.error('Cannot actOnSelectedImage as no image is selected')
-      return
+      return doRefetch()
     }
 
-    ; (async () => {
+    ;(async () => {
       const image = currentImage()
-      if (!image) return
+      if (!image) {
+        return doRefetch()
+      }
 
       await action(image as ImageGalleryItem)
 
       setImages((prevImages) => {
-        return prevImages.filter((img) => img !== prevImages[index])
+        return prevImages.filter((img) => img.uid !== (image as ImageGalleryItem).uid)
       })
+
+      setPreferredIndex(index)
 
       const itemsLength = currentImageGallery()?.props?.items?.length
       console.log('itemsLength', itemsLength)
       if (itemsLength && itemsLength <= 1) {
-        console.log('refetching')
-        refetch()
+        doRefetch()
       }
-
-      setPreferredIndex(index)
     })()
+  }
+
+  function doRefetch() {
+    console.log('refetching')
+    refetch()
+    setPreferredIndex(0)
   }
 
   async function loadData() {
@@ -109,7 +116,6 @@ const Service = () => {
       return
     }
     setPreferredIndex(currentIndex())
-    console.log('updating images')
     setImages((prevImages) => {
       // @ts-ignore: use any
       const newPhotos = ptr?.photos.map((p: any) => ({
@@ -125,7 +131,7 @@ const Service = () => {
   }
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       await loadData()
     })()
   }, [data])
