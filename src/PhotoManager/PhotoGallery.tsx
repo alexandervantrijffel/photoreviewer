@@ -35,6 +35,8 @@ const Service = () => {
             album
             url
           }
+          folderName
+          folderImageCount
         }
       }
     }
@@ -52,7 +54,6 @@ const Service = () => {
     // @ts-ignore: Object is possibly 'null'.
     return imageGallery.current
   }
-
   const currentIndex = (): number => {
     return currentImageGallery()?.getCurrentIndex() ?? ignore
   }
@@ -61,7 +62,8 @@ const Service = () => {
     return currentImageGallery()?.props?.items[currentIndex()]
   }
 
-  const onSlide = (_index: number) => {
+  const onSlide = (index: number) => {
+    console.log('on slide', { index })
     // console.log('onSlide, index is', index)
     // index we get here is often undefined?! so we cannot rely on it
     // if (images.length < pageCount || (index && index + pageCount / 2 > images.length)) {
@@ -82,9 +84,10 @@ const Service = () => {
       return doRefetch()
     }
 
-    ;(async () => {
+    ; (async () => {
       const image = currentImage()
       if (!image) {
+        console.error('refetching because currentImage is empty')
         return doRefetch()
       }
 
@@ -110,19 +113,20 @@ const Service = () => {
     setPreferredIndex(0)
   }
 
+  const dataOutput = data?.photosToReview?.output
   async function loadData() {
-    const ptr = data?.photosToReview?.output
-    if (!ptr?.photos) {
+    if (!dataOutput?.photos || images?.length > 0) {
       return
     }
+    console.log('loading images', { imageCount: images?.length })
     setPreferredIndex(currentIndex())
     setImages((prevImages) => {
       // @ts-ignore: use any
-      const newPhotos = ptr?.photos.map((p: any) => ({
-        original: ptr.baseUrl + p.url,
-        originalTitle: 'originalTitle',
-        thumbnail: ptr.baseUrl + p.url,
-        thumbnailTitle: 'thumbnailTitle',
+      const newPhotos = dataOutput?.photos.map((p: any) => ({
+        original: dataOutput.baseUrl + p.url,
+        // originalTitle: 'originalTitle',
+        thumbnail: dataOutput.baseUrl + p.url,
+        // thumbnailTitle: 'thumbnailTitle',
         description: p.url,
         uid: p.url,
       }))
@@ -131,7 +135,7 @@ const Service = () => {
   }
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       await loadData()
     })()
   }, [data])
@@ -229,22 +233,54 @@ const Service = () => {
       </p>
     )
 
+  const someComponent = () => {
+    const slideToIndex = (index) => null
+
+    return (
+      <div className="custom-control">
+        <div className="slider">
+          <div className="bullet-left" onClick={slideToIndex(1)}></div>
+          <div className="bullet" onClick={slideToIndex(5)}></div>
+          <div className="bullet" onClick={slideToIndex(6)}></div>
+          <div className="bullet" onClick={slideToIndex(7)}></div>
+          <div className="bullet" onClick={slideToIndex(8)}></div>
+          <div className="bullet-right" onClick={slideToIndex(10)}></div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <ImageGallery
-      items={images}
-      slideDuration={0}
-      slideInterval={30000}
-      ref={imageGallery}
-      lazyLoad={true}
-      infinite={true}
-      onSlide={onSlide}
-      onPause={onPause}
-      onPlay={onPlay}
-      autoPlay={theaterMode}
-      showNav={paused}
-      showThumbnails={paused}
-      showFullscreenButton={paused}
-    />
+    <>
+      <ImageGallery
+        items={images}
+        slideDuration={0}
+        slideInterval={30000}
+        ref={imageGallery}
+        lazyLoad={true}
+        infinite={true}
+        onSlide={onSlide}
+        onPause={onPause}
+        onPlay={onPlay}
+        autoPlay={theaterMode}
+        showNav={paused}
+        showThumbnails={paused}
+        showPlayButton={false}
+        showFullscreenButton={paused}
+        renderCustomControls={someComponent}
+      />
+      <div className="flex fixed inset-x-0 bottom-0 items-end h-screen mb-[6vh]">
+        <div className="w-full bg-gray-800 bg-opacity-50 h-150vh">
+          <div className="flex justify-between items-center m-4 mx-10 h-full text-lg">
+            <div></div>
+            <div className="flex flex-col">
+              <div className="text-white">{dataOutput?.folderName}</div>
+              <div className="text-sm">{dataOutput?.folderImageCount} images remaining</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   )
 }
 export default Service
