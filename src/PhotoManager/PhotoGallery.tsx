@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { gql, useQuery, useMutation } from '@apollo/client'
 import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery'
 import 'react-image-gallery/styles/css/image-gallery.css'
@@ -62,6 +62,8 @@ const Service = () => {
     return currentImageGallery()?.props?.items[currentIndex()]
   }
 
+  const [currentImageFileName, setCurrentImageFileName] = useState('')
+
   const onSlide = (index: number) => {
     console.log('on slide', { index })
     // console.log('onSlide, index is', index)
@@ -69,6 +71,8 @@ const Service = () => {
     // if (images.length < pageCount || (index && index + pageCount / 2 > images.length)) {
     //   setPage((prevPage) => prevPage + 1)
     // }
+    // @ts-expect-error: fileName property
+    setCurrentImageFileName(currentImageGallery()?.props?.items[index]?.fileName ?? '')
   }
   const onPause = () => {
     setPaused(true)
@@ -84,7 +88,7 @@ const Service = () => {
       return doRefetch()
     }
 
-    ; (async () => {
+    ;(async () => {
       const image = currentImage()
       if (!image) {
         console.error('refetching because currentImage is empty')
@@ -127,7 +131,8 @@ const Service = () => {
         // originalTitle: 'originalTitle',
         thumbnail: dataOutput.baseUrl + p.url,
         // thumbnailTitle: 'thumbnailTitle',
-        description: p.url,
+        // description: p.url,
+        fileName: p.url.substring(p.url.lastIndexOf('/') + 1),
         uid: p.url,
       }))
       return prevImages.concat(newPhotos)
@@ -135,7 +140,7 @@ const Service = () => {
   }
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       await loadData()
     })()
   }, [data])
@@ -219,7 +224,6 @@ const Service = () => {
       setPreferredIndex(ignore)
       onSlide(index)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images])
 
   if (loading)
@@ -232,23 +236,6 @@ const Service = () => {
         Loading...
       </p>
     )
-
-  const someComponent = () => {
-    const slideToIndex = (index) => null
-
-    return (
-      <div className="custom-control">
-        <div className="slider">
-          <div className="bullet-left" onClick={slideToIndex(1)}></div>
-          <div className="bullet" onClick={slideToIndex(5)}></div>
-          <div className="bullet" onClick={slideToIndex(6)}></div>
-          <div className="bullet" onClick={slideToIndex(7)}></div>
-          <div className="bullet" onClick={slideToIndex(8)}></div>
-          <div className="bullet-right" onClick={slideToIndex(10)}></div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <>
@@ -267,12 +254,11 @@ const Service = () => {
         showThumbnails={paused}
         showPlayButton={false}
         showFullscreenButton={paused}
-        renderCustomControls={someComponent}
       />
       <div className="flex fixed inset-x-0 bottom-0 items-end h-screen mb-[6vh]">
         <div className="w-full bg-gray-800 bg-opacity-50 h-150vh">
-          <div className="flex justify-between items-center m-4 mx-10 h-full text-lg">
-            <div></div>
+          <div className="flex justify-between items-center m-4 mx-10 h-full text-md">
+            <div>{currentImageFileName}</div>
             <div className="flex flex-col">
               <div className="text-white">{dataOutput?.folderName}</div>
               <div className="text-sm">{dataOutput?.folderImageCount} images remaining</div>
