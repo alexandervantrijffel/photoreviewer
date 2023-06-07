@@ -65,7 +65,7 @@ const Service = () => {
   const [currentImageFileName, setCurrentImageFileName] = useState('')
 
   const onSlide = (index: number) => {
-    console.log('on slide', { index })
+    console.log('on slide.new', { index })
     // console.log('onSlide, index is', index)
     // index we get here is often undefined?! so we cannot rely on it
     // if (images.length < pageCount || (index && index + pageCount / 2 > images.length)) {
