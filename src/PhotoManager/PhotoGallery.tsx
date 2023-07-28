@@ -255,6 +255,7 @@ const Service = () => {
         showNav={paused}
         showThumbnails={paused}
         showPlayButton={false}
+        thumbnailPosition={'right'}
         showFullscreenButton={paused}
       />
       <div className="flex fixed inset-x-0 bottom-0 items-end h-screen mb-[6vh]">
