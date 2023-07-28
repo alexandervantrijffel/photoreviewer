@@ -107,7 +107,7 @@ const Service = () => {
       const itemsLength = currentImageGallery()?.props?.items?.length
       console.log('itemsLength', itemsLength)
       if (itemsLength && itemsLength <= 1) {
-        await delay(2000)
+        await delay(1250)
         doRefetch()
       }
     })()
