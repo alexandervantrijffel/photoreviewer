@@ -93,7 +93,7 @@ const PhotoGallery = (): JSX.Element => {
     }
     setPreferredIndex(index)
     setImages((prevImages) => {
-      ; (async () => {
+      ;(async () => {
         await action(prevImages[index])
       })()
       return prevImages.filter((image) => image !== prevImages[index])
@@ -225,7 +225,7 @@ const PhotoGallery = (): JSX.Element => {
       getServiceData()
       return
     }
-    ; (async () => {
+    ;(async () => {
       const results = await unsortedPhotos(!images.length ? 0 : images.length + processedPhotosCount)
 
       if (results.videos?.length > 0) {

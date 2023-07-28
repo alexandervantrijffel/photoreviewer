@@ -259,11 +259,11 @@ const Service = () => {
       />
       <div className="flex fixed inset-x-0 bottom-0 items-end h-screen mb-[6vh]">
         <div className="w-full bg-gray-800 bg-opacity-50 h-150vh">
-          <div className="flex justify-between items-center m-4 mx-10 h-full text-md">
+          <div className="flex justify-between items-center m-4 mx-10 h-full text-white text-md">
             <div>{currentImageFileName}</div>
             <div className="flex flex-col">
               <div className="text-white">{dataOutput?.folderName}</div>
-              <div className="text-sm">{dataOutput?.folderImageCount} images remaining</div>
+              <div className="text-sm text-white">{dataOutput?.folderImageCount} images remaining</div>
             </div>
           </div>
         </div>
