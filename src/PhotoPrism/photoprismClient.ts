@@ -31,30 +31,31 @@ export type fileUrl = (photo: PhotoListing, type: string) => string
 
 export const getFileUrl =
   (loginResult: LoginResult) =>
-    (photo: PhotoListing, type: string): string => {
-      if (!photo) {
-        console.log('nophoto!')
-        return 'nophoto'
-      }
-      if (photo.Files.length === 0) {
-        console.error('photoprism photo has no files!')
-        return ''
-      }
-      if (photo.Files.length > 1) {
-        console.warn('photoprism photo has more than 1 file!', photo.Files)
-      }
-
-      return `${envString('REACT_APP_PHOTOPRISM_DOMAIN', '')}/api/v1/t/${photo.Files[0].Hash}/${loginResult.config.previewToken
-        }/${type}`
+  (photo: PhotoListing, type: string): string => {
+    if (!photo) {
+      console.log('nophoto!')
+      return 'nophoto'
     }
+    if (photo.Files.length === 0) {
+      console.error('photoprism photo has no files!')
+      return ''
+    }
+    if (photo.Files.length > 1) {
+      console.warn('photoprism photo has more than 1 file!', photo.Files)
+    }
+
+    return `${envString('REACT_APP_PHOTOPRISM_DOMAIN', '')}/api/v1/t/${photo.Files[0].Hash}/${
+      loginResult.config.previewToken
+    }/${type}`
+  }
 
 export const initApi = async () => {
   const loginResult = (await ky
     .post('/api/v1/session', {
       json: {
         username: 'admin',
-        password: import.meta.env.VITE_PHOTOPRISM_PASSWORD
-      }
+        password: import.meta.env.VITE_PHOTOPRISM_PASSWORD,
+      },
     })
     .json()) as LoginResult
   api = ky.extend({
@@ -62,9 +63,9 @@ export const initApi = async () => {
       beforeRequest: [
         (request) => {
           request.headers.set('X-Session-ID', loginResult.id)
-        }
-      ]
-    }
+        },
+      ],
+    },
   })
   return { fileUrl: getFileUrl(loginResult), firstAlbums: await queryAlbums() }
 }
@@ -108,7 +109,7 @@ export const addPhotoToAlbum = async (uid: string, albumId: string) => {
   console.log(`Adding photo ${uid} to album ${albumId}`)
   const result = await api
     .post(`/api/v1/albums/${albumId}/photos`, {
-      json: { photos: [uid] }
+      json: { photos: [uid] },
     })
     .json<PhotoResponse>()
   if (result.code !== 200) {
@@ -121,7 +122,7 @@ export const deletePhotoFromAlbum = async (uid: string, albumId: string) => {
   console.log(`Deleting photo ${uid} from album ${albumId}`)
   const result = await api
     .delete(`/api/v1/albums/${albumId}/photos`, {
-      json: { photos: [uid] }
+      json: { photos: [uid] },
     })
     .json<PhotoResponse>()
   if (result.code !== 200) {
@@ -134,7 +135,7 @@ export const archive = async (uid: string) => {
   console.log(`Archiving photo ${uid}`)
   const result = await api
     .post('/api/v1/batch/photos/archive', {
-      json: { photos: [uid] }
+      json: { photos: [uid] },
     })
     .json<PhotoResponse>()
   if (result.code !== 200) {
@@ -147,7 +148,7 @@ export const restore = async (uid: string) => {
   console.log(`Restoring photo ${uid}`)
   const result = await api
     .post('/api/v1/batch/photos/restore', {
-      json: { photos: [uid] }
+      json: { photos: [uid] },
     })
     .json<PhotoResponse>()
   if (result.code !== 200) {

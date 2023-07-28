@@ -80,6 +80,7 @@ const Service = () => {
   const onPlay = () => {
     setPaused(false)
   }
+  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
   const actOnSelectedImage = (action: (photo: ImageGalleryItem) => Promise<void>): void => {
     const index = currentIndex()
@@ -106,6 +107,7 @@ const Service = () => {
       const itemsLength = currentImageGallery()?.props?.items?.length
       console.log('itemsLength', itemsLength)
       if (itemsLength && itemsLength <= 1) {
+        await delay(2000)
         doRefetch()
       }
     })()
