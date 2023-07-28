@@ -168,9 +168,9 @@ const Service = () => {
   )
 
   useHotkeys(
-    'n',
+    'g',
     () => {
-      addPhoto('NAH')
+      addPhoto('GOOD')
     },
     [],
   )
