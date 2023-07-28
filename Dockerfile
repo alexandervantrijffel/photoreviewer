@@ -9,8 +9,10 @@ COPY package*.json pnpm* ./
 RUN pnpm i --frozen-lockfile
 
 COPY index.html .
-COPY vite.config.ts .
+COPY *.config.ts .
+COPY *.config.js .
 COPY src src
+COPY public public
 COPY .env.production .
 
 RUN pnpm vite build
