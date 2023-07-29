@@ -24,8 +24,8 @@ dependencies:
     specifier: 18.2.0
     version: 18.2.0(react@18.2.0)
   react-hotkeys-hook:
-    specifier: 4.4.0
-    version: 4.4.0(react-dom@18.2.0)(react@18.2.0)
+    specifier: 4.4.1
+    version: 4.4.1(react-dom@18.2.0)(react@18.2.0)
   react-image-gallery:
     specifier: 1.2.11
     version: 1.2.11(react@18.2.0)
@@ -3470,8 +3470,8 @@ packages:
       react: 18.2.0
       scheduler: 0.23.0
 
-  /react-hotkeys-hook@4.4.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-wOaCWLwgT/f895CMJrR9hmzVf+gfL8IpjWDXWXKngBp9i6Xqzf0tvLv4VI8l3Vlsg/cc4C/Iik3Ck76L/Hj0tw==}
+  /react-hotkeys-hook@4.4.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-sClBMBioFEgFGYLTWWRKvhxcCx1DRznd+wkFHwQZspnRBkHTgruKIHptlK/U/2DPX8BhHoRGzpMVWUXMmdZlmw==}
     peerDependencies:
       react: '>=16.8.1'
       react-dom: '>=16.8.1'
